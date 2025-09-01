@@ -121,6 +121,7 @@ Respond in JSON format:
                 });
 
                 if (!response.ok) {
+                    console.warn(`PhishGuard: HF API error: ${response.status} ${response.statusText}`);
                     throw new Error(`HF API error: ${response.status} ${response.statusText}`);
                 }
 
@@ -128,6 +129,7 @@ Respond in JSON format:
                 console.log('PhishGuard: Hugging Face response:', data);
                 
                 if (data.error) {
+                    console.warn(`PhishGuard: HF Model error: ${data.error}`);
                     throw new Error(`HF Model error: ${data.error}`);
                 }
 
@@ -142,8 +144,9 @@ Respond in JSON format:
             }
         }
         
-        // If all models fail, throw the last error
-        throw lastError || new Error('All Hugging Face models failed');
+        // If all models fail, return fallback analysis instead of throwing
+        console.warn('PhishGuard: All Hugging Face models failed, using fallback analysis');
+        return this.fallbackAnalysis(emailAddress, 'LLM models unavailable');
     }
 
     convertClassificationToPhishingAnalysis(classificationData, originalPrompt) {

@@ -8,104 +8,130 @@
         body {
             font-family: Arial, sans-serif;
             max-width: 800px;
-            margin: 50px auto;
+            margin: 0 auto;
             padding: 20px;
             line-height: 1.6;
         }
-        .email-test-section {
-            margin: 30px 0;
-            padding: 20px;
+        .email-section {
+            margin: 20px 0;
+            padding: 15px;
             border: 1px solid #ddd;
             border-radius: 8px;
             background: #f9f9f9;
         }
-        .email-test-section h3 {
-            margin-top: 0;
-            color: #333;
-        }
-        .test-email {
-            background: white;
-            padding: 10px;
-            margin: 10px 0;
+        .safe { border-left: 4px solid #4caf50; }
+        .suspicious { border-left: 4px solid #ff9800; }
+        .dangerous { border-left: 4px solid #f44336; }
+        .email { 
+            background: #fff;
+            padding: 8px 12px;
             border-radius: 4px;
-            font-family: monospace;
+            display: inline-block;
+            margin: 5px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+        .email:hover {
+            background: #f0f0f0;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .instructions {
+            background: #e7f3ff;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>🛡️ PhishGuard Email Detection Test Page</h1>
-    <p>Hover over the email addresses below to test the detection system:</p>
-
-    <div class="email-test-section">
-        <h3>✅ Safe Emails (Should show green/safe)</h3>
-        <div class="test-email">Contact us at: <strong>support@dbs.com.sg</strong></div>
-        <div class="test-email">Government inquiry: <strong>info@gov.sg</strong></div>
-        <div class="test-email">Bank support: <strong>customercare@ocbc.com.sg</strong></div>
-        <div class="test-email">Official UOB: <strong>help@uob.com.sg</strong></div>
-    </div>
-
-    <div class="email-test-section">
-        <h3>⚠️ Suspicious Emails (Should show orange/suspicious)</h3>
-        <div class="test-email">Fake bank: <strong>dbs-support@gmail.com</strong></div>
-        <div class="test-email">Government impersonation: <strong>govsg@yahoo.com</strong></div>
-        <div class="test-email">Suspicious domain: <strong>admin@ocbc-secure.tk</strong></div>
-        <div class="test-email">Typosquatting: <strong>service@db5.com</strong></div>
-    </div>
-
-    <div class="email-test-section">
-        <h3>🚨 High Risk Emails (Should show red/dangerous)</h3>
-        <div class="test-email">Brand impersonation: <strong>singpass-verify@hotmail.com</strong></div>
-        <div class="test-email">Urgent scam: <strong>urgent-update@dbs-bank.ml</strong></div>
-        <div class="test-email">Fake government: <strong>iras-refund@gmail.com</strong></div>
-        <div class="test-email">CPF scam: <strong>cpf-update@cpf-sg.top</strong></div>
-    </div>
-
-    <div class="email-test-section">
-        <h3>📧 Regular Emails (Should show neutral/safe)</h3>
-        <div class="test-email">Personal: <strong>john.doe@gmail.com</strong></div>
-        <div class="test-email">Business: <strong>contact@techcompany.com</strong></div>
-        <div class="test-email">International: <strong>support@microsoft.com</strong></div>
-    </div>
-
-    <div class="email-test-section">
-        <h3>🔍 Test Instructions:</h3>
+    <h1>🛡️ PhishGuard Email Detection Test</h1>
+    
+    <div class="instructions">
+        <h3>How to test:</h3>
         <ol>
-            <li><strong>Install PhishGuard extension</strong> in your browser</li>
-            <li><strong>Hover over each email</strong> to trigger analysis</li>
-            <li><strong>Look for:</strong>
-                <ul>
-                    <li>Yellow highlight on all emails (initial detection)</li>
-                    <li>Blue pulsing border (analyzing)</li>
-                    <li>Color-coded borders after analysis (green=safe, orange=suspicious, red=dangerous)</li>
-                    <li>Detailed tooltips with threat analysis</li>
-                </ul>
-            </li>
-            <li><strong>Check console</strong> for debugging info (F12 → Console)</li>
+            <li>Make sure the PhishGuard SG extension is enabled</li>
+            <li>Hover over the email addresses below</li>
+            <li>Watch for tooltips showing threat analysis</li>
+            <li>Check browser console (F12) for PhishGuard logs</li>
         </ol>
     </div>
 
-    <div class="email-test-section">
-        <h3>🎯 What to Expect:</h3>
-        <ul>
-            <li><strong>Safe emails</strong> should get green borders and positive feedback</li>
-            <li><strong>Suspicious emails</strong> should get orange borders with warnings</li>
-            <li><strong>High-risk emails</strong> should get red borders and strong warnings</li>
-            <li><strong>Analysis takes 1-3 seconds</strong> depending on Hugging Face model availability</li>
-            <li><strong>Results are cached</strong> so second hover is instant</li>
-        </ul>
+    <div class="email-section safe">
+        <h2>✅ Safe Emails (Should show green/safe tooltips)</h2>
+        <p>These are legitimate email addresses:</p>
+        <div class="email">support@dbs.com.sg</div>
+        <div class="email">info@ocbc.com</div>
+        <div class="email">service@uob.com.sg</div>
+        <div class="email">noreply@gov.sg</div>
+        <div class="email">contact@gmail.com</div>
+        <div class="email">seemanteng@example.com</div>
+    </div>
+
+    <div class="email-section suspicious">
+        <h2>⚠️ Suspicious Emails (Should show orange/warning tooltips)</h2>
+        <p>These contain suspicious patterns:</p>
+        <div class="email">secure-dbs@gmail.com</div>
+        <div class="email">verify-account@yahoo.com</div>
+        <div class="email">update-uob@hotmail.com</div>
+        <div class="email">urgent-singpass@outlook.com</div>
+        <div class="email">support-ocbc@suspicious.com</div>
+    </div>
+
+    <div class="email-section dangerous">
+        <h2>🚨 Dangerous Emails (Should show red/danger tooltips)</h2>
+        <p>These are potential phishing attempts:</p>
+        <div class="email">db5-secure@phishing.tk</div>
+        <div class="email">0cbc-verify@fake.ml</div>
+        <div class="email">u0b-urgent@scam.ga</div>
+        <div class="email">singpa55-update@evil.cf</div>
+        <div class="email">dbs-verify-urgent@suspicious.top</div>
+    </div>
+
+    <div class="email-section">
+        <h2>📧 Mixed Content Test</h2>
+        <p>Contact us at <span class="email">support@company.com</span> for help, or reach our security team at <span class="email">security-alert@fake-bank.tk</span> immediately!</p>
+        
+        <p>This email was sent from <span class="email">legitimate@business.com</span> but beware of imposters like <span class="email">verify-dbs-secure@gmail.com</span></p>
+        
+        <div style="margin: 20px 0;">
+            <h3>Email Links Test:</h3>
+            <a href="mailto:safe@example.com">safe@example.com</a><br>
+            <a href="mailto:phishing@evil.tk">phishing@evil.tk</a><br>
+            <a href="mailto:dbs-urgent-verify@scammer.ml">dbs-urgent-verify@scammer.ml</a>
+        </div>
+    </div>
+
+    <div class="email-section">
+        <h2>🔍 Performance Test</h2>
+        <p>Hover quickly between these emails to test speed:</p>
+        <div class="email">test1@gmail.com</div>
+        <div class="email">test2@yahoo.com</div>
+        <div class="email">test3@hotmail.com</div>
+        <div class="email">dbs-fake@scam.tk</div>
+        <div class="email">ocbc-phish@evil.ml</div>
+        <div class="email">uob-fake@bad.ga</div>
+        <div class="email">safe@legit.com</div>
+        <div class="email">normal@business.org</div>
     </div>
 
     <script>
-        // Add some debugging
-        console.log('PhishGuard Test Page Loaded');
-        console.log('Make sure the PhishGuard extension is installed and active');
-        
-        // Log when emails are hovered
-        document.addEventListener('mouseover', (e) => {
-            if (e.target.tagName === 'STRONG' && e.target.textContent.includes('@')) {
-                console.log('Hovering over email:', e.target.textContent);
-            }
-        });
+        // Add some dynamic content for testing dynamic scanning
+        setTimeout(() => {
+            const dynamicDiv = document.createElement('div');
+            dynamicDiv.className = 'email-section';
+            dynamicDiv.innerHTML = `
+                <h2>🔄 Dynamic Content Test</h2>
+                <p>These emails were added dynamically:</p>
+                <div class="email">dynamic-safe@example.com</div>
+                <div class="email">dynamic-phish@scam.tk</div>
+            `;
+            document.body.appendChild(dynamicDiv);
+            console.log('Dynamic emails added for testing');
+        }, 2000);
     </script>
 </body>
 </html>

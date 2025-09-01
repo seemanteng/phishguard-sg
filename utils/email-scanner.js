@@ -1,121 +1,82 @@
-// Email Scanner Utility
+// Simple Email Scanner - Original Clean Logic
 class EmailScanner {
     constructor() {
-        this.loadPatterns();
-    }
-
-    async loadPatterns() {
-        try {
-            console.log('PhishGuard: EmailScanner requesting patterns from background...');
-            
-            // Get patterns from background script instead of direct fetch
-            chrome.runtime.sendMessage({action: 'getPatterns'}, (response) => {
-                if (chrome.runtime.lastError) {
-                    console.log('PhishGuard: Background script not available, using fallback patterns');
-                    this.setFallbackPatterns();
-                } else if (response && response.patterns) {
-                    console.log('PhishGuard: Patterns loaded from background script');
-                    this.patterns = response.patterns;
-                } else {
-                    console.log('PhishGuard: No patterns in response, using fallback');
-                    this.setFallbackPatterns();
-                }
-            });
-        } catch (error) {
-            console.error('PhishGuard: Failed to load email patterns:', error);
-            this.setFallbackPatterns();
-        }
-    }
-
-    setFallbackPatterns() {
-        console.log('PhishGuard: Setting fallback patterns');
         this.patterns = {
-            suspicious_keywords: ['secure', 'verify', 'urgent', 'update', 'suspend'],
-            risky_tlds: ['.tk', '.ml', '.ga', '.cf', '.top', '.click'],
-            typosquatting_patterns: {
-                'dbs': ['db5', 'd8s', 'dds'],
-                'ocbc': ['0cbc', 'ocb0', 'ocdc'],
-                'uob': ['u0b', 'u08', 'vob']
-            }
+            suspicious_keywords: ['secure', 'verify', 'urgent', 'update', 'suspend', 'alert', 'warning', 'expired'],
+            risky_tlds: ['.tk', '.ml', '.ga', '.cf', '.top', '.click', '.pw', '.cc'],
+            singapore_brands: ['dbs', 'ocbc', 'uob', 'posb', 'singpass', 'cpf', 'iras', 'hdb'],
+            free_providers: ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'mail.com']
         };
     }
 
     scanEmail(email) {
         const [localPart, domain] = email.toLowerCase().split('@');
         let score = 0;
-
-        // Check domain reputation
-        score += this.checkDomainReputation(domain);
-        
-        // Check for suspicious patterns
-        score += this.checkSuspiciousPatterns(email, domain);
-        
-        // Check for brand impersonation
-        score += this.checkBrandImpersonation(domain);
-
-        return {
-            email: email,
-            domain: domain,
-            threatScore: score,
-            riskLevel: this.getRiskLevel(score)
-        };
-    }
-
-    checkDomainReputation(domain) {
-        const freeProviders = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'];
-        const singaporeBrands = ['dbs', 'ocbc', 'uob', 'gov'];
-
-        // High score if free provider used for brand impersonation
-        for (const brand of singaporeBrands) {
-            if (domain.includes(brand) && freeProviders.includes(domain)) {
-                return 40; // e.g., dbsbank@gmail.com
-            }
-        }
-
-        return 0;
-    }
-
-    checkSuspiciousPatterns(email, domain) {
-        let score = 0;
+        const threats = [];
 
         // Check for suspicious keywords in domain
-        const suspiciousKeywords = this.patterns?.suspicious_keywords || [];
-        for (const keyword of suspiciousKeywords) {
+        for (const keyword of this.patterns.suspicious_keywords) {
             if (domain.includes(keyword)) {
                 score += 25;
+                threats.push(`Suspicious keyword: ${keyword}`);
             }
         }
 
-        // Check for uncommon TLDs
-        const riskyTlds = this.patterns?.risky_tlds || [];
-        for (const tld of riskyTlds) {
+        // Check for Singapore brand impersonation
+        for (const brand of this.patterns.singapore_brands) {
+            if (domain.includes(brand) && !this.isLegitimate(domain, brand)) {
+                score += 50;
+                threats.push(`Possible ${brand.toUpperCase()} impersonation`);
+            }
+        }
+
+        // Check for risky TLDs
+        for (const tld of this.patterns.risky_tlds) {
             if (domain.endsWith(tld)) {
-                score += 15;
+                score += 30;
+                threats.push(`Risky domain extension: ${tld}`);
             }
         }
 
-        return score;
+        // Check for brand on free provider (red flag)
+        const hasBrand = this.patterns.singapore_brands.some(brand => localPart.includes(brand));
+        const isFreeProvider = this.patterns.free_providers.includes(domain);
+        if (hasBrand && isFreeProvider) {
+            score += 40;
+            threats.push('Singapore brand on free email provider');
+        }
+
+        const result = {
+            email: email,
+            riskLevel: this.getRiskLevel(score),
+            threats: threats,
+            reasoning: threats.length > 0 ? threats.join(', ') : 'No suspicious patterns detected'
+        };
+
+        return result;
     }
 
-    checkBrandImpersonation(domain) {
-        if (!this.patterns?.typosquatting_patterns) return 0;
-
-        let score = 0;
-        for (const [brand, variants] of Object.entries(this.patterns.typosquatting_patterns)) {
-            for (const variant of variants) {
-                if (domain.includes(variant)) {
-                    score += 50;
-                }
-            }
-        }
-
-        return score;
+    isLegitimate(domain, brand) {
+        const legitimate = {
+            'dbs': ['dbs.com', 'dbs.com.sg'],
+            'ocbc': ['ocbc.com', 'ocbc.com.sg'],  
+            'uob': ['uob.com.sg', 'uob.com'],
+            'posb': ['posb.com.sg'],
+            'singpass': ['singpass.gov.sg'],
+            'cpf': ['cpf.gov.sg'],
+            'iras': ['iras.gov.sg'],
+            'hdb': ['hdb.gov.sg']
+        };
+        
+        return legitimate[brand] && legitimate[brand].includes(domain);
     }
 
     getRiskLevel(score) {
-        if (score >= 70) return 'high';
-        if (score >= 40) return 'medium';
-        if (score >= 20) return 'low';
+        if (score >= 60) return 'high';
+        if (score >= 30) return 'medium';
+        if (score >= 10) return 'low';
         return 'safe';
     }
 }
+
+window.EmailScanner = EmailScanner;

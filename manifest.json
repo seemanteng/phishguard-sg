@@ -20,7 +20,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["utils/email-scanner.js", "utils/llm-email-analyzer.js", "content.js"],
+      "js": ["utils/email-scanner.js", "content.js"],
       "css": ["assets/styles/warning.css"],
       "run_at": "document_start"
     }

@@ -12,15 +12,13 @@ class PhishGuardPopup {
             protectionEnabled: true,
             emailScanningEnabled: true,
             notificationsEnabled: true,
-            language: 'en',
-            hfApiToken: ''
+            language: 'en'
         });
 
         this.updateToggle('protection-toggle', settings.protectionEnabled);
         this.updateToggle('email-toggle', settings.emailScanningEnabled);
         this.updateToggle('notification-toggle', settings.notificationsEnabled);
         document.getElementById('language-dropdown').value = settings.language;
-        document.getElementById('api-token-input').value = settings.hfApiToken;
         
         // Apply language to UI when popup loads
         this.updateLanguage(settings.language);
@@ -52,18 +50,6 @@ class PhishGuardPopup {
             });
         });
 
-        // API Token input
-        document.getElementById('api-token-input').addEventListener('change', (e) => {
-            this.saveApiToken(e.target.value);
-        });
-
-    }
-
-    async saveApiToken(token) {
-        await chrome.storage.sync.set({
-            hfApiToken: token
-        });
-        console.log('PhishGuard: API token saved');
     }
 
     async toggleSetting(toggleId, settingKey) {
