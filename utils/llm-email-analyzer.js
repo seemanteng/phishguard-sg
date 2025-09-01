@@ -1,0 +1,349 @@
+// LLM-powered Email Content Analyzer
+class LLMEmailAnalyzer {
+    constructor() {
+        this.apiToken = null;
+        this.loadApiKey();
+    }
+
+    async loadApiKey() {
+        // Load Hugging Face API token from extension storage (optional - can use free tier without auth)
+        try {
+            const result = await chrome.storage.sync.get('hfApiToken');
+            this.apiToken = result.hfApiToken;
+        } catch (error) {
+            console.log('PhishGuard: No Hugging Face API token configured, using free tier');
+        }
+    }
+
+    async analyzeEmailContent(emailAddress, emailContent, context = {}) {
+        try {
+            const prompt = this.createAnalysisPrompt(emailAddress, emailContent, context);
+            const result = await this.callHuggingFaceAPI(prompt);
+            return this.parseAnalysisResult(result, emailAddress);
+        } catch (error) {
+            console.error('PhishGuard: Hugging Face analysis failed:', error);
+            return this.fallbackAnalysis(emailAddress, emailContent);
+        }
+    }
+
+    createAnalysisPrompt(emailAddress, emailContent, context) {
+        // Simplified prompt optimized for smaller models
+        return `Analyze this email for phishing threats in Singapore context:
+
+Email: ${emailAddress}
+Content: ${emailContent || 'No content'}
+Website: ${context.domain || 'Unknown'}
+
+Check for:
+- Fake Singapore banks (DBS, OCBC, UOB)
+- Government impersonation (gov.sg)
+- Suspicious domains and typos
+- Urgency tactics
+- Credential requests
+
+Rate threat 0-100 and classify as safe/low/medium/high/critical.
+
+Respond in JSON format:
+{"threatScore": 0, "riskLevel": "safe", "threats": [], "reasoning": "analysis", "confidence": 80, "recommendations": "advice"}`;
+    }
+
+    async callHuggingFaceAPI(prompt) {
+        // Using Hugging Face Inference API with free models
+        // Try text classification first, then fall back to text generation
+        return await this.tryTextClassification(prompt) || await this.tryTextGeneration(prompt);
+    }
+
+    async tryTextClassification(prompt) {
+        // Try using classification models first (faster and more reliable)
+        const classificationModels = [
+            'martin-ha/toxic-comment-model',
+            'unitary/toxic-bert',
+            'cardiffnlp/twitter-roberta-base-sentiment-latest'
+        ];
+
+        for (const model of classificationModels) {
+            try {
+                const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(this.apiToken && {'Authorization': `Bearer ${this.apiToken}`})
+                    },
+                    body: JSON.stringify({
+                        inputs: `Phishing email analysis: ${prompt}`,
+                        options: { wait_for_model: true }
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    return this.convertClassificationToPhishingAnalysis(data, prompt);
+                }
+            } catch (error) {
+                console.warn(`PhishGuard: Classification model ${model} failed:`, error);
+                continue;
+            }
+        }
+        return null;
+    }
+
+    async tryTextGeneration(prompt) {
+        // Fallback to text generation models
+        const generationModels = [
+            'microsoft/DialoGPT-medium',
+            'facebook/blenderbot-400M-distill',
+            'gpt2'
+        ];
+
+        let lastError = null;
+        
+        // Try different models in case one is overloaded
+        for (const model of generationModels) {
+            try {
+                const response = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(this.apiToken && {'Authorization': `Bearer ${this.apiToken}`})
+                    },
+                    body: JSON.stringify({
+                        inputs: prompt,
+                        parameters: {
+                            max_new_tokens: 200,
+                            temperature: 0.1,
+                            return_full_text: false
+                        },
+                        options: {
+                            wait_for_model: true,
+                            use_cache: false
+                        }
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HF API error: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+                console.log('PhishGuard: Hugging Face response:', data);
+                
+                if (data.error) {
+                    throw new Error(`HF Model error: ${data.error}`);
+                }
+
+                // Extract generated text
+                const generatedText = Array.isArray(data) ? data[0]?.generated_text : data.generated_text;
+                return generatedText || this.createMockResponse(prompt);
+                
+            } catch (error) {
+                console.warn(`PhishGuard: Model ${model} failed:`, error);
+                lastError = error;
+                continue; // Try next model
+            }
+        }
+        
+        // If all models fail, throw the last error
+        throw lastError || new Error('All Hugging Face models failed');
+    }
+
+    convertClassificationToPhishingAnalysis(classificationData, originalPrompt) {
+        // Convert sentiment/toxicity classification to phishing risk assessment
+        try {
+            const email = originalPrompt.match(/Email: ([^\n]+)/)?.[1] || '';
+            const domain = email.split('@')[1]?.toLowerCase() || '';
+            
+            let threatScore = 0;
+            const threats = [];
+            let reasoning = 'Classification-based analysis';
+            
+            if (Array.isArray(classificationData) && classificationData.length > 0) {
+                const scores = classificationData[0];
+                
+                // Look for toxic/negative indicators
+                const toxicScore = scores.find(s => s.label?.toLowerCase().includes('toxic'))?.score || 0;
+                const negativeScore = scores.find(s => s.label?.toLowerCase().includes('negative'))?.score || 0;
+                
+                threatScore = Math.max(toxicScore, negativeScore) * 100;
+                
+                if (threatScore > 0.7) threats.push('Potentially malicious content detected');
+                if (toxicScore > 0.5) threats.push('Toxic language patterns');
+                if (negativeScore > 0.6) threats.push('Negative sentiment indicators');
+                
+                reasoning = `Classification analysis: toxic=${(toxicScore*100).toFixed(0)}%, negative=${(negativeScore*100).toFixed(0)}%`;
+            }
+            
+            // Add domain-based scoring
+            const domainScore = this.getDomainThreatScore(email);
+            threatScore = Math.max(threatScore, domainScore);
+            
+            return JSON.stringify({
+                threatScore: Math.round(threatScore),
+                riskLevel: this.scoreToRiskLevel(threatScore),
+                threats,
+                reasoning,
+                confidence: 70,
+                recommendations: threatScore > 40 ? 'Exercise caution with this email' : 'Email appears safe'
+            });
+        } catch (error) {
+            console.error('PhishGuard: Classification conversion failed:', error);
+            return this.createMockResponse(originalPrompt);
+        }
+    }
+
+    getDomainThreatScore(email) {
+        const domain = email.split('@')[1]?.toLowerCase() || '';
+        const localPart = email.split('@')[0]?.toLowerCase() || '';
+        
+        let score = 0;
+        const suspiciousDomains = ['gmail.com', 'yahoo.com', 'hotmail.com'];
+        const sgBrands = ['dbs', 'ocbc', 'uob', 'gov', 'singpass', 'iras', 'cpf'];
+        
+        // Free email with SG brand impersonation
+        if (suspiciousDomains.includes(domain) && sgBrands.some(brand => localPart.includes(brand))) {
+            score = Math.max(score, 60);
+        }
+        
+        // Non-SG domain claiming to be SG brand
+        if (sgBrands.some(brand => domain.includes(brand) && !domain.includes('.sg'))) {
+            score = Math.max(score, 40);
+        }
+        
+        return score;
+    }
+
+    scoreToRiskLevel(score) {
+        if (score >= 80) return 'critical';
+        if (score >= 60) return 'high';
+        if (score >= 40) return 'medium';
+        if (score >= 20) return 'low';
+        return 'safe';
+    }
+
+    createMockResponse(prompt) {
+        // Fallback response when HF models fail
+        const email = prompt.match(/Email: ([^\n]+)/)?.[1] || '';
+        const domain = email.split('@')[1]?.toLowerCase() || '';
+        
+        let threatScore = 0;
+        const threats = [];
+        
+        // Basic heuristics for mock response
+        const suspiciousDomains = ['gmail.com', 'yahoo.com', 'hotmail.com'];
+        const sgBrands = ['dbs', 'ocbc', 'uob', 'gov', 'singpass'];
+        
+        if (suspiciousDomains.includes(domain) && sgBrands.some(brand => email.toLowerCase().includes(brand))) {
+            threatScore = 60;
+            threats.push('Free email provider with Singapore brand name');
+        } else if (sgBrands.some(brand => domain.includes(brand) && !domain.includes('.sg'))) {
+            threatScore = 40;
+            threats.push('Non-Singapore domain claiming to be local brand');
+        }
+        
+        return JSON.stringify({
+            threatScore,
+            riskLevel: threatScore > 50 ? 'medium' : 'low',
+            threats,
+            reasoning: 'HF models unavailable, using basic heuristics',
+            confidence: 50,
+            recommendations: threatScore > 50 ? 'Verify sender authenticity' : 'Email appears legitimate'
+        });
+    }
+
+    parseAnalysisResult(llmResponse, emailAddress) {
+        try {
+            const result = JSON.parse(llmResponse);
+            
+            return {
+                email: emailAddress,
+                threatScore: Math.max(0, Math.min(100, result.threatScore || 0)),
+                riskLevel: result.riskLevel || 'safe',
+                threats: result.threats || [],
+                reasoning: result.reasoning || 'No detailed analysis available',
+                confidence: Math.max(0, Math.min(100, result.confidence || 50)),
+                recommendations: result.recommendations || 'Monitor for suspicious activity',
+                source: 'llm',
+                timestamp: Date.now()
+            };
+        } catch (error) {
+            console.error('PhishGuard: Failed to parse LLM response:', error);
+            return this.fallbackAnalysis(emailAddress, 'LLM parsing failed');
+        }
+    }
+
+    fallbackAnalysis(emailAddress, content) {
+        // Fallback to basic analysis when LLM is unavailable
+        const domain = emailAddress.split('@')[1]?.toLowerCase() || '';
+        const localPart = emailAddress.split('@')[0]?.toLowerCase() || '';
+        
+        let threatScore = 0;
+        const threats = [];
+        
+        // Basic domain checks
+        if (this.isSuspiciousDomain(domain)) {
+            threatScore += 40;
+            threats.push('Suspicious domain');
+        }
+        
+        // Check for brand impersonation
+        if (this.checkBrandImpersonation(domain, localPart)) {
+            threatScore += 35;
+            threats.push('Potential brand impersonation');
+        }
+        
+        // Check for free provider misuse
+        if (this.checkFreeProviderMisuse(domain, localPart)) {
+            threatScore += 25;
+            threats.push('Suspicious use of free email provider');
+        }
+
+        return {
+            email: emailAddress,
+            threatScore,
+            riskLevel: this.calculateRiskLevel(threatScore),
+            threats,
+            reasoning: `Analyzing: ${emailAddress}`,
+            confidence: 60,
+            recommendations: threatScore > 30 ? 'Verify sender identity before responding' : 'Email appears legitimate',
+            source: 'fallback',
+            timestamp: Date.now()
+        };
+    }
+
+    isSuspiciousDomain(domain) {
+        const suspiciousTLDs = ['.tk', '.ml', '.ga', '.cf', '.top', '.click', '.download'];
+        const suspiciousKeywords = ['secure', 'verify', 'update', 'urgent', 'support'];
+        
+        return suspiciousTLDs.some(tld => domain.endsWith(tld)) ||
+               suspiciousKeywords.some(keyword => domain.includes(keyword));
+    }
+
+    checkBrandImpersonation(domain, localPart) {
+        const singaporeBrands = ['dbs', 'ocbc', 'uob', 'gov', 'singpass', 'iras', 'cpf', 'hdb', 'grab', 'shopee'];
+        const officialDomains = ['dbs.com', 'dbs.com.sg', 'ocbc.com', 'ocbc.com.sg', 'uob.com.sg', 'gov.sg'];
+        
+        // Check if email contains brand name but isn't from official domain
+        for (const brand of singaporeBrands) {
+            if ((domain.includes(brand) || localPart.includes(brand)) && 
+                !officialDomains.some(official => domain.includes(official))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    checkFreeProviderMisuse(domain, localPart) {
+        const freeProviders = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com'];
+        const businessKeywords = ['support', 'admin', 'service', 'team', 'official', 'noreply'];
+        
+        return freeProviders.includes(domain) && 
+               businessKeywords.some(keyword => localPart.includes(keyword));
+    }
+
+    calculateRiskLevel(score) {
+        if (score >= 80) return 'critical';
+        if (score >= 60) return 'high';
+        if (score >= 40) return 'medium';
+        if (score >= 20) return 'low';
+        return 'safe';
+    }
+}

@@ -1,0 +1,39 @@
+{
+  "suspicious_keywords": [
+    "secure",
+    "verify",
+    "support",
+    "login",
+    "update",
+    "confirm",
+    "suspend",
+    "urgent",
+    "immediate",
+    "validate"
+  ],
+  "singapore_brands": [
+    "dbs",
+    "ocbc",
+    "uob",
+    "singpass",
+    "cpf",
+    "iras",
+    "hdb",
+    "singtel",
+    "starhub",
+    "grab"
+  ],
+  "risky_tlds": [
+    ".top",
+    ".xyz",
+    ".shop",
+    ".click",
+    ".download",
+    ".stream"
+  ],
+  "typosquatting_patterns": {
+    "dbs": ["dbs-secure", "dbsbank", "db5"],
+    "ocbc": ["ocb", "0cbc", "ocbc-login"],
+    "singpass": ["singpa55", "sing-pass", "singpass-gov"]
+  }
+}

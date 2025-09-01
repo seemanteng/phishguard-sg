@@ -1,0 +1,50 @@
+{
+  "extensionName": {
+    "message": "PhishGuard SG",
+    "description": "Name of the extension"
+  },
+  "extensionDescription": {
+    "message": "保护新加坡人免受网络钓鱼网站和电子邮件冒充的侵害",
+    "description": "Description of the extension"
+  },
+  "warningTitle": {
+    "message": "警告：可疑网站",
+    "description": "Title for phishing warning"
+  },
+  "warningMessage": {
+    "message": "此网站可能冒充值得信赖的新加坡公司。",
+    "description": "Main warning message"
+  },
+  "safeTitle": {
+    "message": "验证安全",
+    "description": "Title for safe website notification"
+  },
+  "safeMessage": {
+    "message": "这是新加坡可信组织的官方网站。",
+    "description": "Safe website message"
+  },
+  "emailWarningTitle": {
+    "message": "可疑电子邮件",
+    "description": "Title for suspicious email warning"
+  },
+  "emailWarningMessage": {
+    "message": "此电子邮件可能来自欺诈来源",
+    "description": "Suspicious email message"
+  },
+  "seekHelp": {
+    "message": "更多信息",
+    "description": "Button text to get more information"
+  },
+  "reportScam": {
+    "message": "向ScamShield举报",
+    "description": "Button text to report scam"
+  },
+  "protectionActive": {
+    "message": "保护已激活",
+    "description": "Status message when protection is enabled"
+  },
+  "helpText": {
+    "message": "如果您认为这是网络钓鱼尝试，请不要输入个人信息。请致电1800-722-6688向新加坡警察部队反诈骗中心举报，或通过ScamShield应用程序举报。",
+    "description": "Help text for users"
+  }
+}

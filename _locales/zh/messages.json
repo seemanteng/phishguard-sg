@@ -1,0 +1,50 @@
+{
+  "extensionName": {
+    "message": "PhishGuard SG",
+    "description": "Name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Melindungi rakyat Singapura daripada laman web phishing dan penyamaran e-mel",
+    "description": "Description of the extension"
+  },
+  "warningTitle": {
+    "message": "Amaran: Laman Web Mencurigakan",
+    "description": "Title for phishing warning"
+  },
+  "warningMessage": {
+    "message": "Laman web ini mungkin menyamar sebagai syarikat Singapura yang dipercayai.",
+    "description": "Main warning message"
+  },
+  "safeTitle": {
+    "message": "Disahkan Selamat",
+    "description": "Title for safe website notification"
+  },
+  "safeMessage": {
+    "message": "Ini adalah laman web rasmi organisasi Singapura yang dipercayai.",
+    "description": "Safe website message"
+  },
+  "emailWarningTitle": {
+    "message": "E-mel Mencurigakan",
+    "description": "Title for suspicious email warning"
+  },
+  "emailWarningMessage": {
+    "message": "E-mel ini mungkin daripada sumber penipuan",
+    "description": "Suspicious email message"
+  },
+  "seekHelp": {
+    "message": "Maklumat Lanjut",
+    "description": "Button text to get more information"
+  },
+  "reportScam": {
+    "message": "Lapor ke ScamShield",
+    "description": "Button text to report scam"
+  },
+  "protectionActive": {
+    "message": "Perlindungan Aktif",
+    "description": "Status message when protection is enabled"
+  },
+  "helpText": {
+    "message": "Jika anda percaya ini adalah percubaan phishing, jangan masukkan maklumat peribadi. Laporkan kepada Pusat Anti-Penipuan Polis Singapura di 1800-722-6688 atau melalui aplikasi ScamShield.",
+    "description": "Help text for users"
+  }
+}

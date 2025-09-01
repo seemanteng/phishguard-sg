@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "PhishGuard SG",
+  "version": "1.0.0",
+  "description": "Protect Singaporeans from phishing websites and email impersonation",
+  "default_locale": "en",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "notifications",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["utils/email-scanner.js", "utils/llm-email-analyzer.js", "content.js"],
+      "css": ["assets/styles/warning.css"],
+      "run_at": "document_start"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "PhishGuard SG",
+    "default_icon": {
+      "16": "assets/icons/icon16.png",
+      "48": "assets/icons/icon48.png",
+      "128": "assets/icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icons/icon16.png",
+    "48": "assets/icons/icon48.png",
+    "128": "assets/icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "assets/styles/warning.css",
+        "data/threat-patterns.json",
+        "data/whitelist.json"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

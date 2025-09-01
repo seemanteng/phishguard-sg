@@ -1,0 +1,50 @@
+{
+  "extensionName": {
+    "message": "PhishGuard SG",
+    "description": "Name of the extension"
+  },
+  "extensionDescription": {
+    "message": "Protect Singaporeans from phishing websites and email impersonation",
+    "description": "Description of the extension"
+  },
+  "warningTitle": {
+    "message": "Warning: Suspicious Website",
+    "description": "Title for phishing warning"
+  },
+  "warningMessage": {
+    "message": "This website may be impersonating a trusted Singapore company.",
+    "description": "Main warning message"
+  },
+  "safeTitle": {
+    "message": "Verified Safe",
+    "description": "Title for safe website notification"
+  },
+  "safeMessage": {
+    "message": "This is an official website of a trusted Singapore organization.",
+    "description": "Safe website message"
+  },
+  "emailWarningTitle": {
+    "message": "Suspicious Email",
+    "description": "Title for suspicious email warning"
+  },
+  "emailWarningMessage": {
+    "message": "This email may be from a fraudulent source",
+    "description": "Suspicious email message"
+  },
+  "seekHelp": {
+    "message": "More Info",
+    "description": "Button text to get more information"
+  },
+  "reportScam": {
+    "message": "Report to ScamShield",
+    "description": "Button text to report scam"
+  },
+  "protectionActive": {
+    "message": "Protection Active",
+    "description": "Status message when protection is enabled"
+  },
+  "helpText": {
+    "message": "If you believe this is a phishing attempt, do not enter personal information. Report it to the Singapore Police Force Anti-Scam Centre at 1800-722-6688 or via ScamShield app.",
+    "description": "Help text for users"
+  }
+}

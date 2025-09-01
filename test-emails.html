@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard Email Detection Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .email-test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .email-test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .test-email {
+            background: white;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛡️ PhishGuard Email Detection Test Page</h1>
+    <p>Hover over the email addresses below to test the detection system:</p>
+
+    <div class="email-test-section">
+        <h3>✅ Safe Emails (Should show green/safe)</h3>
+        <div class="test-email">Contact us at: <strong>support@dbs.com.sg</strong></div>
+        <div class="test-email">Government inquiry: <strong>info@gov.sg</strong></div>
+        <div class="test-email">Bank support: <strong>customercare@ocbc.com.sg</strong></div>
+        <div class="test-email">Official UOB: <strong>help@uob.com.sg</strong></div>
+    </div>
+
+    <div class="email-test-section">
+        <h3>⚠️ Suspicious Emails (Should show orange/suspicious)</h3>
+        <div class="test-email">Fake bank: <strong>dbs-support@gmail.com</strong></div>
+        <div class="test-email">Government impersonation: <strong>govsg@yahoo.com</strong></div>
+        <div class="test-email">Suspicious domain: <strong>admin@ocbc-secure.tk</strong></div>
+        <div class="test-email">Typosquatting: <strong>service@db5.com</strong></div>
+    </div>
+
+    <div class="email-test-section">
+        <h3>🚨 High Risk Emails (Should show red/dangerous)</h3>
+        <div class="test-email">Brand impersonation: <strong>singpass-verify@hotmail.com</strong></div>
+        <div class="test-email">Urgent scam: <strong>urgent-update@dbs-bank.ml</strong></div>
+        <div class="test-email">Fake government: <strong>iras-refund@gmail.com</strong></div>
+        <div class="test-email">CPF scam: <strong>cpf-update@cpf-sg.top</strong></div>
+    </div>
+
+    <div class="email-test-section">
+        <h3>📧 Regular Emails (Should show neutral/safe)</h3>
+        <div class="test-email">Personal: <strong>john.doe@gmail.com</strong></div>
+        <div class="test-email">Business: <strong>contact@techcompany.com</strong></div>
+        <div class="test-email">International: <strong>support@microsoft.com</strong></div>
+    </div>
+
+    <div class="email-test-section">
+        <h3>🔍 Test Instructions:</h3>
+        <ol>
+            <li><strong>Install PhishGuard extension</strong> in your browser</li>
+            <li><strong>Hover over each email</strong> to trigger analysis</li>
+            <li><strong>Look for:</strong>
+                <ul>
+                    <li>Yellow highlight on all emails (initial detection)</li>
+                    <li>Blue pulsing border (analyzing)</li>
+                    <li>Color-coded borders after analysis (green=safe, orange=suspicious, red=dangerous)</li>
+                    <li>Detailed tooltips with threat analysis</li>
+                </ul>
+            </li>
+            <li><strong>Check console</strong> for debugging info (F12 → Console)</li>
+        </ol>
+    </div>
+
+    <div class="email-test-section">
+        <h3>🎯 What to Expect:</h3>
+        <ul>
+            <li><strong>Safe emails</strong> should get green borders and positive feedback</li>
+            <li><strong>Suspicious emails</strong> should get orange borders with warnings</li>
+            <li><strong>High-risk emails</strong> should get red borders and strong warnings</li>
+            <li><strong>Analysis takes 1-3 seconds</strong> depending on Hugging Face model availability</li>
+            <li><strong>Results are cached</strong> so second hover is instant</li>
+        </ul>
+    </div>
+
+    <script>
+        // Add some debugging
+        console.log('PhishGuard Test Page Loaded');
+        console.log('Make sure the PhishGuard extension is installed and active');
+        
+        // Log when emails are hovered
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.tagName === 'STRONG' && e.target.textContent.includes('@')) {
+                console.log('Hovering over email:', e.target.textContent);
+            }
+        });
+    </script>
+</body>
+</html>

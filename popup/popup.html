@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 300px;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d32f2f;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .status.safe {
+            background-color: #e8f5e8;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+        }
+
+        .status.warning {
+            background-color: #fff3e0;
+            border: 1px solid #ff9800;
+            color: #e65100;
+        }
+
+        .status.danger {
+            background-color: #ffebee;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+
+        .controls {
+            margin-top: 20px;
+        }
+
+        .switch {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background-color: #ccc;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .toggle.active {
+            background-color: #4caf50;
+        }
+
+        .toggle::before {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s;
+        }
+
+        .toggle.active::before {
+            transform: translateX(26px);
+        }
+
+        .stats {
+            margin-top: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .link {
+            color: #1976d2;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .link:hover {
+            text-decoration: underline;
+        }
+
+        .safety-recommendations {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #f44336;
+            border-radius: 4px;
+            font-size: 12px;
+            text-align: left;
+        }
+
+        .safety-header {
+            margin-bottom: 8px;
+            color: #c62828;
+        }
+
+        .safety-list {
+            margin-bottom: 10px;
+        }
+
+        .safety-item {
+            margin: 4px 0;
+            color: #c62828;
+        }
+
+        .safety-footer {
+            border-top: 1px solid #ffcdd2;
+            padding-top: 8px;
+            color: #c62828;
+        }
+
+        .helpline {
+            font-weight: bold;
+        }
+
+        .language-selector {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 10px 0;
+        }
+
+        .language-dropdown {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background-color: white;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .language-dropdown:focus {
+            outline: none;
+            border-color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">🛡️ PhishGuard SG</div>
+        <div style="font-size: 12px; color: #666;">Protecting Singapore from Phishing</div>
+    </div>
+
+    <div id="status" class="status safe">
+        <div id="status-text">✅ Protection Active</div>
+        <div id="status-detail">Current site is verified safe</div>
+    </div>
+
+    <div class="controls">
+        <div class="switch">
+            <span>Real-time Protection</span>
+            <div id="protection-toggle" class="toggle active"></div>
+        </div>
+        
+        <div class="switch">
+            <span>Email Scanning</span>
+            <div id="email-toggle" class="toggle active"></div>
+        </div>
+        
+        <div class="switch">
+            <span>Notifications</span>
+            <div id="notification-toggle" class="toggle active"></div>
+        </div>
+        
+        <div class="language-selector">
+            <span>Language</span>
+            <select id="language-dropdown" class="language-dropdown">
+                <option value="en">English</option>
+                <option value="zh">中文 (Chinese)</option>
+                <option value="ms">Bahasa Melayu</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+            </select>
+        </div>
+        
+        <div class="api-token-section" style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
+            <div style="font-size: 12px; color: #666; margin-bottom: 8px;">HuggingFace API Token (Optional)</div>
+            <input type="password" id="api-token-input" placeholder="Enter token for enhanced analysis" 
+                   style="width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px; box-sizing: border-box;">
+            <div style="font-size: 10px; color: #888; margin-top: 4px;">Leave empty to use free tier</div>
+        </div>
+    </div>
+
+    <div class="stats">
+        <div style="margin-top: 10px;">
+            <a href="#" class="link" id="report-link">Report a phishing site</a>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>
