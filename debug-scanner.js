@@ -1,5 +1,5 @@
-// Simple Email Scanner v2.1 - FIXED HIGH RISK DETECTION
-console.log('PhishGuard: EmailScanner v2.1 loaded with FIXED high risk detection');
+// Debug the exact scanner logic to see what's happening
+
 class EmailScanner {
     constructor() {
         this.patterns = {
@@ -15,11 +15,15 @@ class EmailScanner {
         let score = 0;
         const threats = [];
 
+        console.log(`\n=== Analyzing: ${email} ===`);
+        console.log(`LocalPart: "${localPart}", Domain: "${domain}"`);
+
         // Check for suspicious keywords in domain
         for (const keyword of this.patterns.suspicious_keywords) {
             if (domain.includes(keyword)) {
                 score += 25;
                 threats.push(`Suspicious keyword in domain: ${keyword}`);
+                console.log(`✓ Found suspicious keyword in domain: ${keyword} (+25 points)`);
             }
         }
         
@@ -28,6 +32,7 @@ class EmailScanner {
             if (localPart.includes(keyword)) {
                 score += 20;
                 threats.push(`Suspicious keyword in email: ${keyword}`);
+                console.log(`✓ Found suspicious keyword in email: ${keyword} (+20 points)`);
             }
         }
 
@@ -36,6 +41,7 @@ class EmailScanner {
             if (domain.includes(brand) && !this.isLegitimate(domain, brand)) {
                 score += 50;
                 threats.push(`Possible ${brand.toUpperCase()} impersonation in domain`);
+                console.log(`✓ Found ${brand} brand in domain (+50 points)`);
             }
         }
         
@@ -44,6 +50,7 @@ class EmailScanner {
             if (localPart.includes(brand) && this.patterns.free_providers.includes(domain)) {
                 score += 60;
                 threats.push(`${brand.toUpperCase()} brand impersonation on free email`);
+                console.log(`✓ Found ${brand} brand in email on free provider (+60 points)`);
             }
         }
         
@@ -54,6 +61,7 @@ class EmailScanner {
                     if (domain.endsWith(tld)) {
                         score += 40; // Additional score for brand + risky TLD combo
                         threats.push(`${brand.toUpperCase()} brand on suspicious domain`);
+                        console.log(`✓ Found ${brand} brand on risky domain ${tld} (+40 points)`);
                         break; // Don't double-count multiple TLD matches
                     }
                 }
@@ -65,23 +73,21 @@ class EmailScanner {
             if (domain.endsWith(tld)) {
                 score += 30;
                 threats.push(`Risky domain extension: ${tld}`);
+                console.log(`✓ Found risky TLD: ${tld} (+30 points)`);
             }
         }
-
 
         const result = {
             email: email,
             riskLevel: this.getRiskLevel(score),
-            threatScore: score, // Add score for debugging
+            threatScore: score,
             threats: threats,
             reasoning: threats.length > 0 ? threats.join(', ') : 'No suspicious patterns detected'
         };
 
-        // Debug logging
-        if (score > 0) {
-            console.log(`PhishGuard Scanner: ${email} → score: ${score}, risk: ${result.riskLevel}, threats: [${threats.join(', ')}]`);
-        }
-
+        console.log(`Final score: ${score}, Risk level: ${result.riskLevel}`);
+        console.log(`Threats: ${threats.join(' | ')}`);
+        
         return result;
     }
 
@@ -108,4 +114,20 @@ class EmailScanner {
     }
 }
 
-window.EmailScanner = EmailScanner;
+const scanner = new EmailScanner();
+
+console.log('=== DEBUG: Testing problematic emails ===');
+
+// Test the emails that should be RED but showing YELLOW
+const testEmails = [
+    'verify-dbs@gmail.com',
+    'ocbc-secure@hotmail.com', 
+    'uob-alert@yahoo.com',
+    'dbs-urgent@suspicious.tk',
+    'admin@evil.tk',
+    'support@company.com'
+];
+
+testEmails.forEach(email => {
+    scanner.scanEmail(email);
+});

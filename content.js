@@ -1,5 +1,5 @@
-// PhishGuard SG Content Script
-console.log('PhishGuard: Content script loading...');
+// PhishGuard SG Content Script v2.2 - FIXED TOOLTIPS & COLORS  
+console.log('PhishGuard: Content script v2.2 loading with SINGLE TOOLTIP behavior...');
 
 class PhishGuardContent {
     constructor() {
@@ -108,31 +108,37 @@ class PhishGuardContent {
                 try {
                     const email = this.extractEmail(event.target);
                     if (email && event.target === this.currentHoveredElement) {
-                        // Set a delay before hiding to allow cursor movement to tooltip
+                        // Immediately clear any debounce timeout
+                        if (this.hoverDebounceTimeout) {
+                            clearTimeout(this.hoverDebounceTimeout);
+                            this.hoverDebounceTimeout = null;
+                        }
+                        
+                        // Set a short delay before hiding tooltip
                         this.hoverTimeout = setTimeout(() => {
-                            const tooltip = document.getElementById('phishguard-email-tooltip');
-                            if (tooltip && !this.isMouseNearTooltip()) {
-                                this.removeExistingTooltip();
-                                this.currentHoveredElement = null;
-                                this.currentHoveredEmail = null;
-                            }
-                        }, 300); // 300ms delay
+                            this.removeExistingTooltip();
+                            this.currentHoveredElement = null;
+                            this.currentHoveredEmail = null;
+                        }, 150); // Shorter delay for faster cleanup
                     }
                 } catch (error) {
                     console.error('PhishGuard: Mouseout handler error:', error);
                 }
             });
 
-            // Also hide tooltip when mouse moves away from both email and tooltip
+            // Clean up tooltips when mouse moves away from email areas
             document.addEventListener('mousemove', (event) => {
                 try {
+                    // If there's a tooltip but no hovered element, remove it
                     const tooltip = document.getElementById('phishguard-email-tooltip');
-                    if (tooltip && this.currentHoveredElement) {
-                        const mouseNearEmail = this.isMouseNearElement(event, this.currentHoveredElement);
-                        const mouseNearTooltip = this.isMouseNearTooltip();
-                        
-                        if (!mouseNearEmail && !mouseNearTooltip) {
-                            // Clear any existing timeout and hide immediately
+                    if (tooltip && !this.currentHoveredElement) {
+                        this.removeExistingTooltip();
+                    }
+                    
+                    // If mouse moves far from current hovered element, clean up
+                    if (this.currentHoveredElement) {
+                        const mouseNearEmail = this.isMouseNearElement(event, this.currentHoveredElement, 100); // Larger threshold for move
+                        if (!mouseNearEmail) {
                             if (this.hoverTimeout) {
                                 clearTimeout(this.hoverTimeout);
                                 this.hoverTimeout = null;
@@ -164,12 +170,6 @@ class PhishGuardContent {
                mouseY <= rect.bottom + threshold;
     }
 
-    isMouseNearTooltip() {
-        if (!this.currentTooltip) return false;
-        
-        // Check if tooltip is being hovered
-        return this.currentTooltip.matches(':hover');
-    }
 
     preAnalyzeVisibleEmails() {
         // Pre-analyze emails that are currently visible for instant hover response
@@ -500,43 +500,38 @@ class PhishGuardContent {
             tooltip.classList.add('show');
         });
         
-        // Store reference for hover detection
+        // Store reference
         this.currentTooltip = tooltip;
-        
-        // Add hover listeners to tooltip to keep it visible
-        tooltip.addEventListener('mouseenter', () => {
-            if (this.hoverTimeout) {
-                clearTimeout(this.hoverTimeout);
-                this.hoverTimeout = null;
-            }
-        });
-        
-        tooltip.addEventListener('mouseleave', () => {
-            this.hoverTimeout = setTimeout(() => {
-                this.removeExistingTooltip();
-                this.currentHoveredElement = null;
-                this.currentHoveredEmail = null;
-            }, 300);
-        });
     }
 
     createEmailTooltip(analysis) {
+        // Debug logging  
+        console.log(`PhishGuard Tooltip: ${analysis.email} → riskLevel: "${analysis.riskLevel}", score: ${analysis.threatScore || 'undefined'}`);
+        console.log(`Color mapping: ${analysis.riskLevel} → typeClass will be:`, 
+            analysis.riskLevel === 'safe' ? 'safe' :
+            analysis.riskLevel === 'low' ? 'warning' :
+            analysis.riskLevel === 'medium' ? 'warning' : 
+            analysis.riskLevel === 'high' ? 'danger' : 'safe');
+        
         const tooltip = document.createElement('div');
         tooltip.id = 'phishguard-email-tooltip';
         
         const typeClass = analysis.riskLevel === 'safe' ? 'safe' :
                          analysis.riskLevel === 'low' ? 'warning' :
-                         analysis.riskLevel === 'medium' ? 'warning' : 'danger';
+                         analysis.riskLevel === 'medium' ? 'warning' : 
+                         analysis.riskLevel === 'high' ? 'danger' : 'safe';
         
         tooltip.className = `phishguard-tooltip ${typeClass}`;
         
         const icon = analysis.riskLevel === 'safe' ? '✅' :
                     analysis.riskLevel === 'low' ? '⚠️' :
-                    analysis.riskLevel === 'medium' ? '⚠️' : '🚨';
+                    analysis.riskLevel === 'medium' ? '⚠️' : 
+                    analysis.riskLevel === 'high' ? '🚨' : '✅';
         
         const title = analysis.riskLevel === 'safe' ? 'Email Verified' :
                      analysis.riskLevel === 'low' ? 'Low Risk Email' :
-                     analysis.riskLevel === 'medium' ? 'Suspicious Email' : 'High Risk Email';
+                     analysis.riskLevel === 'medium' ? 'Suspicious Email' : 
+                     analysis.riskLevel === 'high' ? 'High Risk Email' : 'Email Verified';
         
         const cacheIndicator = analysis.fromCache ? 
             '<span style="font-size: 10px; color: #888; margin-left: 8px;">⚡ Cached</span>' : 
@@ -714,16 +709,20 @@ class PhishGuardContent {
     }
 
     removeExistingTooltip() {
+        // Remove ALL possible tooltips to prevent duplicates
+        const existingTooltips = document.querySelectorAll('.phishguard-tooltip');
+        existingTooltips.forEach(tooltip => {
+            if (tooltip.parentNode) {
+                tooltip.remove();
+            }
+        });
+        
+        // Also remove by ID as backup
         const existing = document.getElementById('phishguard-email-tooltip');
-        if (existing) {
-            // Fade out animation
-            existing.classList.remove('show');
-            setTimeout(() => {
-                if (existing.parentNode) {
-                    existing.remove();
-                }
-            }, 200); // Wait for animation to complete
+        if (existing && existing.parentNode) {
+            existing.remove();
         }
+        
         this.currentTooltip = null;
     }
 

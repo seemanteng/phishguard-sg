@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "PhishGuard SG",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "Protect Singaporeans from phishing websites and email impersonation",
   "default_locale": "en",
   "permissions": [
