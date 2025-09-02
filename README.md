@@ -13,7 +13,6 @@ A Chrome extension designed to protect Singaporeans from phishing websites and e
 
 ## Installation
 
-### From Source
 1. Clone this repository
 2. Open Chrome and navigate to `chrome://extensions/`
 3. Enable "Developer mode" in the top right
