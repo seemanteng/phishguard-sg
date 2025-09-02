@@ -198,6 +198,13 @@ privacy/
 - ✅ **Security Audit**: Open source code available for review
 - ✅ **User Rights**: Complete control and opt-out mechanisms
 
+## Data Sets used and Citations
+<ul>
+akashkr. (2019). Phishing URL EDA and modelling [Kaggle Notebook]. Kaggle. Retrieved September 2, 2025, from https://www.kaggle.com/code/akashkr/phishing-url-eda-and-modelling/notebook 
+
+Proxycurl. (n.d.). LinkedIn Dataset – Singapore Company Profiles [Data set]. Kaggle. Retrieved September 2, 2025, from https://www.kaggle.com/datasets/proxycurl/singapore-companies
+</ul>
+
 ## Contributing
 
 1. Fork the repository
