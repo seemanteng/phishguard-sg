@@ -8,7 +8,7 @@ A Chrome extension designed to protect Singaporeans from phishing websites and e
 - **Real-time Email Detection**: Automatically scans emails on web pages and shows warnings for suspicious addresses
 - **Singapore-focused Protection**: Specialized detection for impersonation of local banks (DBS, OCBC, UOB, POSB) and government services (SingPass, CPF, IRAS, HDB)
 - **Advanced Threat Detection**: Identifies suspicious patterns, risky domains, and URL-based attacks
-- **Multi-language Support**: Available in English, Chinese, and Malay
+- **Multi-language Support**: Available in English, Chinese, Malay, and Tamil
 - **Non-intrusive Warnings**: Clean tooltip interface that doesn't disrupt the browsing experience
 
 ## Installation
@@ -124,6 +124,19 @@ phishguard-sg/
 
 ### Localization
 
+PhishGuard SG supports Singapore's four official languages:
+
+- **English** (en) - Default
+- **Chinese Simplified** (zh) - 中文
+- **Malay** (ms) - Bahasa Melayu  
+- **Tamil** (ta) - தமிழ்
+
+#### Implementation
+- Main extension interface: Multi-language popup and settings
+- Privacy policy: Fully translated consent interface with language selector
+- Automatic language detection: Uses browser/system language preferences
+- Language persistence: User selection saved across sessions
+
 Add new languages by creating files in the `_locales/` directory following the existing structure.
 
 ## Privacy & Security
@@ -146,9 +159,11 @@ PhishGuard SG is built with **privacy by design** principles:
 - **Regulatory Compliance**: Meets Chrome Web Store privacy requirements
 
 #### User Consent & Control System
-- **First-Run Consent Dialog**: Professional onboarding with clear privacy explanation
+- **First-Run Consent Dialog**: Professional multilingual onboarding with clear privacy explanation
+- **Multilingual Privacy Policy**: Available in English, Chinese, Malay, and Tamil
 - **Granular Controls**: Users can disable notifications, scanning, or entire extension
 - **Consent Enforcement**: Extension functionality disabled if user declines
+- **Language Preferences**: Privacy interface adapts to user's preferred language
 - **Privacy Settings**: Easy access to privacy controls via popup menu
 
 #### Technical Security Measures
@@ -187,6 +202,7 @@ privacy/
 | **No Tracking** | No analytics, metrics, or usage collection | Complete privacy |
 | **Local Storage** | Settings stored in browser only | Data never leaves device |
 | **Consent Management** | Full opt-out with extension disable | User control |
+| **Multilingual Support** | Privacy policy in 4 languages | Accessible to all Singapore residents |
 | **Open Source** | Public code repository | Transparent security |
 | **Regular Updates** | Security patches via Chrome Web Store | Maintained protection |
 
