@@ -780,7 +780,7 @@ class PhishGuardContent {
             const cachedAnalysis = {
                 ...analysis,
                 cachedAt: Date.now(),
-                cacheVersion: '1.0' // For future cache invalidation if needed
+                cacheVersion: '3.3' // Updated version invalidates old cache
             };
             
             this.persistentCache[email] = cachedAnalysis;
@@ -809,6 +809,12 @@ class PhishGuardContent {
 
     isCacheValid(cachedAnalysis) {
         if (!cachedAnalysis || !cachedAnalysis.cachedAt) {
+            return false;
+        }
+        
+        // Invalidate cache if version doesn't match (forces re-analysis with new logic)
+        if (cachedAnalysis.cacheVersion !== '3.3') {
+            console.log('PhishGuard: Invalidating old cache version', cachedAnalysis.cacheVersion);
             return false;
         }
         
