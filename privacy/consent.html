@@ -3,101 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PhishGuard SG - Privacy & Consent</title>
+    <title>PhishGuard SG - Privacy Policy</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="consent.css">
 </head>
 <body>
-    <div class="consent-container">
+    <div class="privacy-container">
         <div class="header">
-            <img src="../assets/icons/icon48.png" alt="PhishGuard SG" class="logo">
-            <h1>Welcome to PhishGuard SG</h1>
-            <p class="subtitle">Protecting Singaporeans from phishing threats</p>
-        </div>
-
-        <div class="privacy-section">
-            <h2>🛡️ Your Privacy is Protected</h2>
-            <div class="privacy-highlights">
-                <div class="highlight-item">
-                    <span class="icon">✅</span>
-                    <div>
-                        <strong>Zero Data Collection</strong>
-                        <p>We don't collect, store, or transmit any personal data</p>
-                    </div>
-                </div>
-                <div class="highlight-item">
-                    <span class="icon">🏠</span>
-                    <div>
-                        <strong>Local Processing Only</strong>
-                        <p>All threat detection happens on your device</p>
-                    </div>
-                </div>
-                <div class="highlight-item">
-                    <span class="icon">🔒</span>
-                    <div>
-                        <strong>No External Servers</strong>
-                        <p>Your browsing activity never leaves your browser</p>
-                    </div>
-                </div>
-                <div class="highlight-item">
-                    <span class="icon">📖</span>
-                    <div>
-                        <strong>Open Source</strong>
-                        <p>Our code is transparent and publicly auditable</p>
-                    </div>
-                </div>
+            <img src="../assets/icons/PHISHGUARD SG.png" alt="PhishGuard SG" class="logo">
+            <div class="header-text">
+                <h1 id="main-title">PRIVACY POLICY</h1>
+                <p class="subtitle" id="main-subtitle">Your Privacy Matters</p>
+            </div>
+            <div class="language-selector">
+                <select id="language-select" class="language-dropdown">
+                    <option value="en">English</option>
+                    <option value="zh">中文</option>
+                    <option value="ms">Bahasa Melayu</option>
+                    <option value="ta">தமிழ்</option>
+                </select>
             </div>
         </div>
 
-        <div class="permissions-section">
-            <h3>Permissions Explained</h3>
-            <div class="permission-list">
-                <div class="permission-item">
-                    <strong>Active Tab</strong>
-                    <span>To scan websites for phishing threats</span>
+        <div class="content-sections">
+            <section class="policy-section">
+                <div class="section-header">
+                    <h2 id="section1-title">Personal Statement</h2>
                 </div>
-                <div class="permission-item">
-                    <strong>Storage</strong>
-                    <span>To save your language preferences locally</span>
+                <div class="section-content">
+                    <p id="section1-content">We are committed to creating a secure and user-friendly experience for every user. To achieve this, we aim to be as clear as possible about all our policies, as is evident by our transparent terms and conditions.</p>
                 </div>
-                <div class="permission-item">
-                    <strong>Notifications</strong>
-                    <span>To alert you about potential threats</span>
+            </section>
+
+            <section class="policy-section">
+                <div class="section-header">
+                    <h2 id="section2-title">Data Collection</h2>
                 </div>
+                <div class="section-content">
+                    <p id="section2-content">PhishGuard SG operates with a zero data collection policy. We do not collect, store, or transmit any personal data to external servers. All threat detection and processing occurs locally on your device.</p>
+                </div>
+            </section>
+
+            <section class="policy-section">
+                <div class="section-header">
+                    <h2 id="section3-title">Why do we use local storage?</h2>
+                </div>
+                <div class="section-content">
+                    <p id="section3-content">Local storage also helps keep track of your settings and maintain data, for example, your language preferences, notification settings, or general user preferences like theme. The information that is stored is used purely for functionality, allowing us to provide customized experiences for our users. We do not use any tracking mechanisms that will track or identify you.</p>
+                </div>
+            </section>
+
+            <section class="policy-section">
+                <div class="section-header">
+                    <h2 id="section4-title">What information do we gather specifically?</h2>
+                </div>
+                <div class="section-content">
+                    <p id="section4-content">We gather minimal information necessary for the extension to function. This includes your language preferences, notification settings, and threat detection preferences. All information is stored locally on your device and <b>never</b> transmitted to external servers.</p>
+                </div>
+            </section>
+
+            <section class="policy-section">
+                <div class="section-header">
+                    <h2 id="section5-title">What third-parties do we share your information with?</h2>
+                </div>
+                <div class="section-content">
+                    <p id="section5-content">We do not share any information with third parties. All processing happens locally on your device. We will not share your personal information with any external partners or services.</p>
+                </div>
+            </section>
+        </div>
+
+        <div class="consent-section">
+            <div class="consent-options">
+                <label class="checkbox-container">
+                    <input type="checkbox" id="privacy-consent" required>
+                    <span class="checkmark"></span>
+                    <span id="consent-text">I have read and agree to the Privacy Policy</span>
+                </label>
             </div>
-        </div>
 
-        <div class="consent-options">
-            <label class="checkbox-container">
-                <input type="checkbox" id="notifications-consent" checked>
-                <span class="checkmark"></span>
-                Enable threat notifications (recommended)
-            </label>
-            
-            <label class="checkbox-container">
-                <input type="checkbox" id="privacy-consent" required>
-                <span class="checkmark"></span>
-                I have read and agree to the <a href="../PRIVACY_POLICY.md" target="_blank">Privacy Policy</a>
-            </label>
-        </div>
-
-        <div class="language-selection">
-            <label for="language-select">Choose your language:</label>
-            <select id="language-select">
-                <option value="en">English</option>
-                <option value="zh">中文 (Chinese)</option>
-                <option value="ms">Bahasa Melayu (Malay)</option>
-                <option value="ta">தமிழ் (Tamil)</option>
-            </select>
-        </div>
-
-        <div class="actions">
-            <button id="decline-btn" class="btn secondary">Decline & Disable</button>
-            <button id="accept-btn" class="btn primary" disabled>Accept & Continue</button>
-        </div>
-
-        <div class="footer">
-            <p>Questions? <a href="https://github.com/your-username/phishguard-sg/issues" target="_blank">Contact us on GitHub</a></p>
-            <p class="version">Version 1.0.2</p>
+            <div class="actions">
+                <button id="decline-btn" class="btn secondary"><span id="decline-text">Decline and Disable</span></button>
+                <button id="accept-btn" class="btn primary" disabled><span id="accept-text">Accept and Continue</span></button>
+            </div>
         </div>
     </div>
 
