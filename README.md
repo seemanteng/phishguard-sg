@@ -55,7 +55,7 @@ Rather than binary classification, the feature engineering approach uses **weigh
 - Multiple weak signals combine to identify sophisticated attacks
 - Dynamic thresholds classify emails as safe (0-4), low (5-14), medium (15-49), or high risk (50+)
 
-This approach enables detection of **advanced phishing techniques** that would bypass simple keyword filters, including character substitution attacks (like "db5.com" instead of "dbs.com") and complex multi-subdomain impersonation attempts.
+This approach enables detection of **advanced phishing techniques** that would bypass simple keyword filters, including character substitution attacks (like typosquatting "db5.com" instead of "dbs.com") and complex multi-subdomain impersonation attempts.
 
 ## Detection Categories
 
