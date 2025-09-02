@@ -202,15 +202,6 @@ privacy/
 - akashkr. (2019). Phishing URL EDA and modelling [Kaggle Notebook]. Kaggle. Retrieved September 2, 2025, from https://www.kaggle.com/code/akashkr/phishing-url-eda-and-modelling/notebook 
 - Proxycurl. (2023). LinkedIn Dataset – Singapore Company Profiles [Data set]. Kaggle. Retrieved September 2, 2025, from https://www.kaggle.com/datasets/proxycurl/singapore-companies
 
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly using the included test files
-5. Submit a pull request
-
-
 ## Disclaimer
 
 PhishGuard SG is a security tool designed to help identify potential phishing attempts. While it uses advanced detection methods, no security tool is 100% effective. Users should always exercise caution and verify the authenticity of emails through official channels.
