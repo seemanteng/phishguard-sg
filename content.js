@@ -287,9 +287,8 @@ class PhishGuardContent {
             
             .phishguard-tooltip.typosquatting {
                 border-left-color: #dc3545 !important;
-                background: #f5c6cb;
-                color: #721c24;
-                animation: pulse-red 2s infinite;
+                background: white;
+                color: #333;
             }
             
             .phishguard-tooltip.evaluating { 
@@ -301,12 +300,6 @@ class PhishGuardContent {
                 0% { opacity: 1; }
                 50% { opacity: 0.7; }
                 100% { opacity: 1; }
-            }
-            
-            @keyframes pulse-red {
-                0% { background: #f5c6cb; }
-                50% { background: #f8d7da; }
-                100% { background: #f5c6cb; }
             }
             
             .phishguard-tooltip strong {
