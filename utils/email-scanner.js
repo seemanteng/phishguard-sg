@@ -9,12 +9,46 @@ class EmailScanner {
             free_providers: ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'mail.com'],
             url_shorteners: ['bit.ly', 'tinyurl.com', 't.co', 'short.link', 'ow.ly', 'is.gd', 'goo.gl', 'tiny.cc']
         };
+        this.whitelist = null;
+        this.loadWhitelist();
     }
 
-    scanEmail(email) {
+    async loadWhitelist() {
+        try {
+            const response = await fetch(chrome.runtime.getURL('data/whitelist.json'));
+            this.whitelist = await response.json();
+        } catch (error) {
+            console.error('Failed to load whitelist:', error);
+        }
+    }
+
+    isWhitelisted(domain) {
+        if (!this.whitelist) return false;
+        return this.whitelist.trusted_domains.some(trusted => 
+            domain === trusted || domain.endsWith('.' + trusted)
+        );
+    }
+
+    async scanEmail(email) {
         const [localPart, domain] = email.toLowerCase().split('@');
         let score = 0;
         const threats = [];
+
+        // Ensure whitelist is loaded before checking
+        if (!this.whitelist) {
+            await this.loadWhitelist();
+        }
+
+        // Check whitelist first - if whitelisted, return safe result
+        if (this.isWhitelisted(domain)) {
+            return {
+                email: email,
+                riskLevel: 'safe',
+                threatScore: -70,
+                threats: [],
+                reasoning: 'Domain is whitelisted (verified safe)'
+            };
+        }
 
         // Check for suspicious keywords in domain
         for (const keyword of this.patterns.suspicious_keywords) {
@@ -117,7 +151,7 @@ class EmailScanner {
         
         // 8. Character Substitution Detection (Advanced typosquatting)
         const typoRisk = this.checkCharacterSubstitution(domain);
-        console.log(`PhishGuard: Typo check for ${domain} → score: ${typoRisk.score}, threat: ${typoRisk.threat}`);
+        // console.log(`PhishGuard: Typo check for ${domain} → score: ${typoRisk.score}, threat: ${typoRisk.threat}`);
         score += typoRisk.score;
         if (typoRisk.threat) threats.push(typoRisk.threat);
 
@@ -129,10 +163,10 @@ class EmailScanner {
             reasoning: threats.length > 0 ? threats.join(', ') : 'No suspicious patterns detected'
         };
 
-        // Debug logging
-        if (score > 0) {
-            console.log(`PhishGuard Scanner: ${email} → score: ${score}, risk: ${result.riskLevel}, threats: [${threats.join(', ')}]`);
-        }
+        // Debug logging - only when explicitly requested
+        // if (score > 0) {
+        //     console.log(`PhishGuard Scanner: ${email} → score: ${score}, risk: ${result.riskLevel}, threats: [${threats.join(', ')}]`);
+        // }
 
         return result;
     }
@@ -250,13 +284,13 @@ class EmailScanner {
     
     hasSubstitutionPattern(domain, brand, substitutionPatterns) {
         // Check if domain contains brand name with character substitutions
-        console.log(`PhishGuard: Checking substitutions for domain="${domain}" brand="${brand}"`);
+        // console.log(`PhishGuard: Checking substitutions for domain="${domain}" brand="${brand}"`);
         for (const [original, replacements] of Object.entries(substitutionPatterns)) {
             for (const replacement of replacements) {
                 const modifiedBrand = brand.replace(new RegExp(original, 'g'), replacement);
-                console.log(`PhishGuard: Testing ${original}→${replacement}: "${brand}" → "${modifiedBrand}"`);
+                // console.log(`PhishGuard: Testing ${original}→${replacement}: "${brand}" → "${modifiedBrand}"`);
                 if (domain.includes(modifiedBrand) && modifiedBrand !== brand) {
-                    console.log(`PhishGuard: MATCH FOUND! ${domain} contains ${modifiedBrand}`);
+                    // console.log(`PhishGuard: MATCH FOUND! ${domain} contains ${modifiedBrand}`);
                     return true;
                 }
             }

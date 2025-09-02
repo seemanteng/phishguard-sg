@@ -1,4 +1,4 @@
-# PhishGuard SG 🛡️
+# PhishGuard SG 
 
 A Chrome extension designed to protect Singaporeans from phishing websites and email impersonation attacks, with specialized detection for Singapore financial institutions and government services.
 

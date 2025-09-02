@@ -23,11 +23,11 @@ class PhishGuardContent {
             // Don't let initialization errors break the page
         }
         
-        // Test detection immediately
-        setTimeout(() => {
-            console.log('PhishGuard: Testing email detection...');
-            this.testEmailDetection();
-        }, 1000);
+        // Don't test detection automatically - wait for user hover
+        // setTimeout(() => {
+        //     console.log('PhishGuard: Testing email detection...');
+        //     this.testEmailDetection();
+        // }, 1000);
     }
     
     testEmailDetection() {
@@ -62,9 +62,17 @@ class PhishGuardContent {
     setupEmailDetection() {
         try {
             console.log('PhishGuard: Setting up email detection...');
+            console.log('PhishGuard: Current URL:', window.location.href);
             
-            // Preemptively scan visible emails for faster hover response
-            this.preAnalyzeVisibleEmails();
+            // Check if we're on Gmail
+            const isGmail = window.location.hostname.includes('mail.google.com');
+            if (isGmail) {
+                console.log('PhishGuard: Gmail detected, setting up Gmail-specific detection');
+                this.setupGmailDetection();
+            }
+            
+            // Don't preemptively scan - only analyze on hover
+            this.preAnalyzeVisibleEmails(); // This just logs that it's disabled now
             
             // Track current hover state
             this.currentHoveredElement = null;
@@ -153,6 +161,194 @@ class PhishGuardContent {
         }
     }
 
+    setupGmailDetection() {
+        console.log('PhishGuard: Setting up Gmail-specific email detection for compose/reply');
+        
+        // Gmail-specific selectors for recipient/compose areas
+        const gmailSelectors = [
+            '[email]', // Gmail uses email attribute
+            'span[dir="ltr"]', // Email addresses in Gmail often use this
+            '.go\\:o', // Gmail specific classes  
+            '.gb_d', // Gmail header email
+            '[aria-label*="@"]', // Any element with @ in aria-label
+            // Compose/Reply specific selectors
+            '[data-hovercard-id*="@"]', // Gmail recipient hover cards
+            '.aXjCH', // Gmail recipient chips in compose
+            '.afn', // Gmail recipient names/emails
+            '.g2', // Gmail recipient container
+            '.ak4', // Gmail recipient area
+            '.aYF', // Gmail compose recipient
+            'span[email]', // Recipient email spans
+            '.oL.aDm', // Gmail conversation header
+            '.gD', // Gmail sender info
+            '.go.gD', // Gmail sender in header
+            '.qu', // Gmail recipient in compose
+            '.vN' // Gmail recipient display
+        ];
+        
+        // Add targeted listeners for Gmail elements
+        gmailSelectors.forEach(selector => {
+            document.addEventListener('mouseover', (event) => {
+                try {
+                    if (event.target.matches(selector) || event.target.closest(selector)) {
+                        const email = this.extractGmailEmail(event.target);
+                        if (email) {
+                            console.log('PhishGuard: Gmail email detected:', email);
+                            this.handleEmailHover(email, event.target);
+                        }
+                    }
+                } catch (error) {
+                    console.error('PhishGuard: Gmail detection error:', error);
+                }
+            });
+        });
+        
+        // Also watch for Gmail's dynamic content loading
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            this.scanGmailElement(node);
+                        }
+                    });
+                }
+            });
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+        // Specifically watch for Gmail compose windows
+        this.watchForGmailCompose();
+    }
+    
+    watchForGmailCompose() {
+        console.log('PhishGuard: Setting up Gmail compose detection');
+        
+        // Watch for compose/reply windows that appear
+        const composeObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'childList') {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            // Check if this is a compose window
+                            if (node.matches && node.matches('.nH.if, .dw, .nH.aHU')) {
+                                console.log('PhishGuard: Gmail compose window detected');
+                                setTimeout(() => this.scanComposeWindow(node), 500);
+                            } else if (node.querySelector) {
+                                const composeWindow = node.querySelector('.nH.if, .dw, .nH.aHU');
+                                if (composeWindow) {
+                                    console.log('PhishGuard: Gmail compose window detected in new content');
+                                    setTimeout(() => this.scanComposeWindow(composeWindow), 500);
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+        });
+        
+        composeObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+        });
+        
+        // Also scan existing compose windows
+        const existingComposeWindows = document.querySelectorAll('.nH.if, .dw, .nH.aHU');
+        existingComposeWindows.forEach(window => {
+            console.log('PhishGuard: Found existing compose window');
+            this.scanComposeWindow(window);
+        });
+    }
+    
+    scanComposeWindow(composeWindow) {
+        console.log('PhishGuard: Scanning compose window for recipients');
+        
+        // Look for recipient elements in the compose window
+        const recipientSelectors = [
+            '[email]',
+            '.aXjCH', // recipient chips
+            '.qu', // recipient area
+            '.vN', // recipient display
+            '[data-hovercard-id*="@"]',
+            'span[dir="ltr"]'
+        ];
+        
+        recipientSelectors.forEach(selector => {
+            const recipients = composeWindow.querySelectorAll(selector);
+            recipients.forEach(recipient => {
+                // Only extract email on hover, don't scan automatically
+                recipient.addEventListener('mouseenter', () => {
+                    const email = this.extractGmailEmail(recipient);
+                    if (email) {
+                        console.log('PhishGuard: Hovering over recipient:', email);
+                        this.handleEmailHover(email, recipient);
+                    }
+                });
+            });
+        });
+    }
+
+    extractGmailEmail(element) {
+        // Gmail-specific email extraction for compose/reply (only called on hover)
+        // console.log('PhishGuard: Checking Gmail element:', element.className, element.tagName);
+        
+        // Check various Gmail attributes and content
+        const sources = [
+            element.getAttribute('email'),
+            element.getAttribute('data-hovercard-id'),
+            element.getAttribute('data-tooltip'),
+            element.getAttribute('title'),
+            element.getAttribute('aria-label'),
+            element.textContent,
+            element.innerText
+        ];
+        
+        // Also check parent elements for email info
+        const parent = element.closest('[email], [data-hovercard-id*="@"], .aXjCH, .qu, .vN');
+        if (parent) {
+            sources.push(
+                parent.getAttribute('email'),
+                parent.getAttribute('data-hovercard-id'),
+                parent.textContent
+            );
+        }
+        
+        for (const source of sources) {
+            if (source && source.includes('@')) {
+                const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
+                const matches = source.match(emailRegex);
+                if (matches && matches[0]) {
+                    // console.log('PhishGuard: Extracted Gmail email:', matches[0], 'from:', source.substring(0, 50));
+                    return matches[0];
+                }
+            }
+        }
+        
+        return null;
+    }
+
+    scanGmailElement(element) {
+        // Don't automatically scan for emails - only detect on hover
+        // Just add hover listeners to new elements
+        const emailElements = element.querySelectorAll('[email], [data-hovercard-id*="@"], .aXjCH, .qu, .vN, span[dir="ltr"]');
+        emailElements.forEach(emailElement => {
+            if (!emailElement.hasAttribute('data-phishguard-listener')) {
+                emailElement.setAttribute('data-phishguard-listener', 'true');
+                emailElement.addEventListener('mouseenter', () => {
+                    const email = this.extractGmailEmail(emailElement);
+                    if (email) {
+                        console.log('PhishGuard: Hover detected on:', email);
+                        this.handleEmailHover(email, emailElement);
+                    }
+                });
+            }
+        });
+    }
+
     isMouseNearElement(event, element, threshold = 50) {
         const rect = element.getBoundingClientRect();
         const mouseX = event.clientX;
@@ -167,26 +363,8 @@ class PhishGuardContent {
 
 
     preAnalyzeVisibleEmails() {
-        // Pre-analyze emails that are currently visible for instant hover response
-        if (window.requestIdleCallback) {
-            window.requestIdleCallback(async () => {
-                try {
-                    const allElements = document.querySelectorAll('*');
-                    let analyzedCount = 0;
-                    
-                    for (let element of allElements) {
-                        const email = this.extractEmail(element);
-                        if (email && analyzedCount < 10) { // Limit to 10 total
-                            const analysis = this.emailScanner.scanEmail(email);
-                            analyzedCount++;
-                        }
-                    }
-                    console.log(`PhishGuard: Pre-analysis complete - ${analyzedCount} emails analyzed`);
-                } catch (error) {
-                    console.error('PhishGuard: Pre-analysis failed:', error);
-                }
-            });
-        }
+        // DISABLED: No pre-analysis - wait for user hover only
+        console.log('PhishGuard: Pre-analysis disabled - emails will only be analyzed on hover');
     }
 
     setupPageMonitoring() {
@@ -240,12 +418,40 @@ class PhishGuardContent {
     extractEmail(element) {
         // Check for email in various formats
         const text = element.textContent || element.value || element.href || '';
+        // Only log when actually extracting email on hover
+        // if (text && text.length > 0) {
+        //     console.log('PhishGuard: Checking element text:', text.substring(0, 100));
+        // }
+        
+        // First check for emails enclosed in angle brackets <email@domain.com>
+        const bracketEmailRegex = /<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>/g;
+        const bracketMatches = text.match(bracketEmailRegex);
+        
+        if (bracketMatches) {
+            // Extract the email from inside the brackets
+            const email = bracketMatches[0].slice(1, -1); // Remove < and >
+            // console.log('PhishGuard: Found email in angle brackets:', email, 'from text:', text.substring(0, 50));
+            return email;
+        }
+        
+        // Also check innerHTML for HTML entities like &lt; and &gt;
+        const innerHTML = element.innerHTML || '';
+        const htmlBracketRegex = /&lt;([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})&gt;/g;
+        const htmlBracketMatches = innerHTML.match(htmlBracketRegex);
+        
+        if (htmlBracketMatches) {
+            const email = htmlBracketMatches[0].replace('&lt;', '').replace('&gt;', '');
+            // console.log('PhishGuard: Found email in HTML entity brackets:', email, 'from innerHTML:', innerHTML.substring(0, 50));
+            return email;
+        }
+        
+        // Fallback to regular email detection for backward compatibility
         const emailRegex = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
         const matches = text.match(emailRegex);
         const email = matches ? matches[0] : null;
         
         if (email) {
-            console.log('PhishGuard: Found email in element:', email, 'from text:', text.substring(0, 50));
+            // console.log('PhishGuard: Found regular email:', email, 'from text:', text.substring(0, 50));
         }
         
         return email;
@@ -358,7 +564,7 @@ class PhishGuardContent {
             console.log(`PhishGuard: Analyzing ${email} for the first time`);
             
             // Use simple scanner only - clean and fast
-            const analysis = this.emailScanner.scanEmail(email);
+            const analysis = await this.emailScanner.scanEmail(email);
             
             // Only show tooltip if this is still the hovered email
             if (this.currentHoveredEmail === email) {
@@ -712,7 +918,7 @@ class PhishGuardContent {
     }
 
     scanForEmails(element) {
-        // Scan new elements for email addresses
+        // DISABLED: Don't automatically scan emails - only add hover listeners
         const walker = document.createTreeWalker(
             element,
             NodeFilter.SHOW_TEXT,
@@ -722,11 +928,16 @@ class PhishGuardContent {
 
         let node;
         while (node = walker.nextNode()) {
-            const email = this.extractEmail(node.parentElement);
-            if (email && !node.parentElement.dataset.phishguardScanned) {
-                node.parentElement.dataset.phishguardScanned = 'true';
-                // Pre-emptively check this email
-                this.checkEmailThreat(email, node.parentElement);
+            const parentElement = node.parentElement;
+            if (parentElement && !parentElement.dataset.phishguardScanned) {
+                parentElement.dataset.phishguardScanned = 'true';
+                // Only add hover listener, don't analyze email yet
+                parentElement.addEventListener('mouseenter', () => {
+                    const email = this.extractEmail(parentElement);
+                    if (email) {
+                        this.handleEmailHover(email, parentElement);
+                    }
+                });
             }
         }
     }

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard Bracket Email Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .email-container {
+            background: #f5f5f5;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #4caf50;
+            padding-bottom: 10px;
+        }
+        .test-case {
+            margin: 15px 0;
+            padding: 10px;
+            background: white;
+            border-left: 4px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <h1>PhishGuard Email Detection Test - Angle Bracket Support</h1>
+    
+    <div class="email-container">
+        <h2>Test Case 1: Legitimate Singapore Emails in Brackets</h2>
+        <div class="test-case">
+            <p>From our DBS team: <strong><support@dbs.com.sg></strong></p>
+        </div>
+        <div class="test-case">
+            <p>OCBC customer service: <strong><help@ocbc.com.sg></strong></p>
+        </div>
+        <div class="test-case">
+            <p>SingPass support: <strong><noreply@singpass.gov.sg></strong></p>
+        </div>
+    </div>
+
+    <div class="email-container">
+        <h2>Test Case 2: Suspicious Emails in Brackets (Should Trigger Warnings)</h2>
+        <div class="test-case">
+            <p>Phishing attempt: <strong><dbs-support@secure-banking.tk></strong></p>
+        </div>
+        <div class="test-case">
+            <p>Typosquatting: <strong><admin@0cbc-bank.com></strong></p>
+        </div>
+        <div class="test-case">
+            <p>Brand impersonation: <strong><singpass-verify@gmail.com></strong></p>
+        </div>
+    </div>
+
+    <div class="email-container">
+        <h2>Test Case 3: Mixed Format (Brackets and Regular)</h2>
+        <div class="test-case">
+            <p>Contact us at support@example.com or <strong><security@suspicious-site.tk></strong></p>
+        </div>
+        <div class="test-case">
+            <p>Reply to: <strong><noreply@cpf.gov.sg></strong> for legitimate inquiries</p>
+        </div>
+    </div>
+
+    <h2>Instructions:</h2>
+    <ol>
+        <li>Load this page with PhishGuard extension enabled</li>
+        <li>Hover over the emails in angle brackets &lt;&gt;</li>
+        <li>Verify that PhishGuard tooltips appear</li>
+        <li>Check that suspicious emails show appropriate warnings</li>
+        <li>Confirm legitimate .gov.sg domains show as safe</li>
+    </ol>
+
+    <script>
+        // Add console logging to help with testing
+        console.log('Test page loaded. Hover over emails in brackets to test PhishGuard detection.');
+    </script>
+</body>
+</html>
