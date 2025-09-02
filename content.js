@@ -11,11 +11,15 @@ class PhishGuardContent {
             this.evaluatingEmails = new Set(); // Track emails being analyzed
             this.currentHoveredEmail = null; // Track current hovered email
             this.hoverDebounceTimeout = null; // Debounce rapid hover events
+            this.currentLanguage = 'en'; // Default language
+            this.translations = null;
             
+            this.loadLanguageSettings();
             this.setupEmailDetection();
             this.setupPageMonitoring();
             this.injectStyles();
             this.checkCurrentPage();
+            this.setupMessageListener();
             
             console.log('PhishGuard: Content script fully initialized');
         } catch (error) {
@@ -30,6 +34,230 @@ class PhishGuardContent {
         // }, 1000);
     }
     
+    async loadLanguageSettings() {
+        try {
+            const settings = await chrome.storage.sync.get({ language: 'en' });
+            this.currentLanguage = settings.language;
+            this.loadTranslations();
+            console.log('PhishGuard: Language loaded:', this.currentLanguage);
+        } catch (error) {
+            console.error('PhishGuard: Error loading language settings:', error);
+            this.currentLanguage = 'en';
+            this.loadTranslations();
+        }
+    }
+
+    loadTranslations() {
+        this.translations = {
+            en: {
+                emailVerified: 'Email Verified',
+                emailScanned: 'Email Scanned',
+                lowRiskEmail: 'Low Risk Email',
+                suspiciousEmail: 'Suspicious Email',
+                highRiskEmail: 'High Risk Email',
+                analyzingEmail: 'Analyzing Email',
+                noThreatsDetected: 'No immediate threats detected',
+                checkingValidity: 'Checking email validity...',
+                pleaseWait: 'Please wait...',
+                domainWhitelisted: 'Domain is whitelisted (verified safe)',
+                noSuspiciousPatterns: 'No suspicious patterns detected',
+                suspiciousKeywordDomain: 'Suspicious keyword in domain',
+                suspiciousKeywordEmail: 'Suspicious keyword in email',
+                brandImpersonation: 'Possible brand impersonation in domain',
+                brandOnFreeEmail: 'brand impersonation on free email',
+                brandOnSuspiciousDomain: 'brand on suspicious domain',
+                riskyDomainExtension: 'Risky domain extension',
+                ipAddressDetected: 'Domain uses IP address instead of domain name',
+                unusuallyLongDomain: 'Unusually long domain name',
+                longDomainName: 'Long domain name',
+                urlShortenerDetected: 'URL shortening service detected',
+                multipleAtSymbols: 'Multiple @ symbols detected',
+                suspiciousDashes: 'Suspicious dashes in domain name',
+                multipleSubdomains: 'Multiple subdomains detected',
+                manySubdomains: 'Many subdomains (high risk)',
+                securityKeywordsInDomain: 'Security keywords in domain name (suspicious)',
+                possibleTyposquatting: 'Possible typosquatting',
+                mixedCharacterScripts: 'Mixed character scripts detected'
+            },
+            zh: {
+                emailVerified: '邮件已验证',
+                emailScanned: '邮件已扫描',
+                lowRiskEmail: '低风险邮件',
+                suspiciousEmail: '可疑邮件',
+                highRiskEmail: '高风险邮件',
+                analyzingEmail: '分析邮件',
+                noThreatsDetected: '未检测到直接威胁',
+                checkingValidity: '检查邮件有效性...',
+                pleaseWait: '请稍候...',
+                domainWhitelisted: '域名已被列入白名单（验证安全）',
+                noSuspiciousPatterns: '未检测到可疑模式',
+                suspiciousKeywordDomain: '域名中含有可疑关键词',
+                suspiciousKeywordEmail: '邮件中含有可疑关键词',
+                brandImpersonation: '域名可能冒充品牌',
+                brandOnFreeEmail: '在免费邮箱上冒充品牌',
+                brandOnSuspiciousDomain: '可疑域名上的品牌',
+                riskyDomainExtension: '危险的域名扩展',
+                ipAddressDetected: '域名使用IP地址而非域名',
+                unusuallyLongDomain: '异常长的域名',
+                longDomainName: '较长的域名',
+                urlShortenerDetected: '检测到短链接服务',
+                multipleAtSymbols: '检测到多个@符号',
+                suspiciousDashes: '域名中含有可疑破折号',
+                multipleSubdomains: '检测到多个子域名',
+                manySubdomains: '许多子域名（高风险）',
+                securityKeywordsInDomain: '域名中含有安全关键词（可疑）',
+                possibleTyposquatting: '可能的域名抢注',
+                mixedCharacterScripts: '检测到混合字符脚本'
+            },
+            ms: {
+                emailVerified: 'E-mel Disahkan',
+                emailScanned: 'E-mel Diimbas',
+                lowRiskEmail: 'E-mel Risiko Rendah',
+                suspiciousEmail: 'E-mel Mencurigakan',
+                highRiskEmail: 'E-mel Berisiko Tinggi',
+                analyzingEmail: 'Menganalisis E-mel',
+                noThreatsDetected: 'Tiada ancaman langsung dikesan',
+                checkingValidity: 'Memeriksa kesahihan e-mel...',
+                pleaseWait: 'Sila tunggu...',
+                domainWhitelisted: 'Domain disenaraikan putih (disahkan selamat)',
+                noSuspiciousPatterns: 'Tiada corak mencurigakan dikesan',
+                suspiciousKeywordDomain: 'Kata kunci mencurigakan dalam domain',
+                suspiciousKeywordEmail: 'Kata kunci mencurigakan dalam e-mel',
+                brandImpersonation: 'Kemungkinan penyamaran jenama dalam domain',
+                brandOnFreeEmail: 'penyamaran jenama pada e-mel percuma',
+                brandOnSuspiciousDomain: 'jenama pada domain mencurigakan',
+                riskyDomainExtension: 'Sambungan domain berisiko',
+                ipAddressDetected: 'Domain menggunakan alamat IP bukan nama domain',
+                unusuallyLongDomain: 'Nama domain yang luar biasa panjang',
+                longDomainName: 'Nama domain yang panjang',
+                urlShortenerDetected: 'Perkhidmatan pemendek URL dikesan',
+                multipleAtSymbols: 'Berbilang simbol @ dikesan',
+                suspiciousDashes: 'Tanda sempang mencurigakan dalam nama domain',
+                multipleSubdomains: 'Berbilang subdomain dikesan',
+                manySubdomains: 'Banyak subdomain (risiko tinggi)',
+                securityKeywordsInDomain: 'Kata kunci keselamatan dalam nama domain (mencurigakan)',
+                possibleTyposquatting: 'Kemungkinan typosquatting',
+                mixedCharacterScripts: 'Skrip aksara campuran dikesan'
+            },
+            ta: {
+                emailVerified: 'மின்னஞ்சல் சரிபார்க்கப்பட்டது',
+                emailScanned: 'மின்னஞ்சல் ஸ்கேன் செய்யப்பட்டது',
+                lowRiskEmail: 'குறைந்த ஆபத்து மின்னஞ்சல்',
+                suspiciousEmail: 'சந்தேகத்திற்குரிய மின்னஞ்சல்',
+                highRiskEmail: 'அதிக ஆபத்து மின்னஞ்சல்',
+                analyzingEmail: 'மின்னஞ்சலை பகுப்பாய்வு செய்கிறது',
+                noThreatsDetected: 'உடனடி அச்சுறுத்தல்கள் கண்டறியப்படவில்லை',
+                checkingValidity: 'மின்னஞ்சல் செல்லுபடியாகும் தன்மையை சரிபார்க்கிறது...',
+                pleaseWait: 'தயவுசெய்து காத்திருக்கவும்...',
+                domainWhitelisted: 'டொமைன் வெள்ளைப் பட்டியலிடப்பட்டது (சரிபார்க்கப்பட்ட பாதுகாப்பு)',
+                noSuspiciousPatterns: 'சந்தேகத்திற்குரிய வடிவங்கள் கண்டறியப்படவில்லை',
+                suspiciousKeywordDomain: 'டொமைனில் சந்தேகத்திற்குரிய முக்கிய வார்த்தை',
+                suspiciousKeywordEmail: 'மின்னஞ்சலில் சந்தேகத்திற்குரிய முக்கிய வார்த்தை',
+                brandImpersonation: 'டொமைனில் சாத்தியமான பிராண்ட் ஆள்மாறாட்டம்',
+                brandOnFreeEmail: 'இலவச மின்னஞ்சலில் பிராண்ட் ஆள்மாறாட்டம்',
+                brandOnSuspiciousDomain: 'சந்தேகத்திற்குரிய டொமைனில் பிராண்ட்',
+                riskyDomainExtension: 'ஆபத்தான டொமைன் நீட்டிப்பு',
+                ipAddressDetected: 'டொமைன் பெயருக்கு பதிலாக IP முகவரியைப் பயன்படுத்துகிறது',
+                unusuallyLongDomain: 'அசாதாரணமாக நீண்ட டொமைன் பெயர்',
+                longDomainName: 'நீண்ட டொமைன் பெயர்',
+                urlShortenerDetected: 'URL சுருக்க சேவை கண்டறியப்பட்டது',
+                multipleAtSymbols: 'பல @ குறியீடுகள் கண்டறியப்பட்டன',
+                suspiciousDashes: 'டொமைன் பெயரில் சந்தேகத்திற்குரிய கோடுகள்',
+                multipleSubdomains: 'பல துணைக் களங்கள் கண்டறியப்பட்டன',
+                manySubdomains: 'பல துணைக் களங்கள் (அதிக ஆபத்து)',
+                securityKeywordsInDomain: 'டொமைன் பெயரில் பாதுகாப்பு முக்கிய வார்த்தைகள் (சந்தேகத்திற்குரிய)',
+                possibleTyposquatting: 'சாத்தியமான டைபோஸ்கிவாட்டிங்',
+                mixedCharacterScripts: 'கலவையான எழுத்து ஸ்கிரிப்ட்கள் கண்டறியப்பட்டன'
+            }
+        };
+    }
+
+    setupMessageListener() {
+        // Listen for language changes from background script
+        chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+            if (request.action === 'settingChanged' && request.setting === 'language') {
+                this.currentLanguage = request.value;
+                this.loadTranslations();
+                console.log('PhishGuard: Language changed to:', this.currentLanguage);
+            }
+        });
+    }
+
+    getTranslation(key, defaultValue = '') {
+        const currentTranslations = this.translations[this.currentLanguage] || this.translations.en;
+        return currentTranslations[key] || defaultValue;
+    }
+
+    translateAnalysisResults(analysis) {
+        if (!analysis || !analysis.threats) {
+            return analysis;
+        }
+
+        // Translate threats array
+        const translatedThreats = analysis.threats.map(threat => {
+            // Map common threat patterns to translation keys
+            if (threat.includes('Domain is whitelisted')) {
+                return this.getTranslation('domainWhitelisted', threat);
+            } else if (threat.includes('Suspicious keyword in domain:')) {
+                const keyword = threat.split(': ')[1];
+                return `${this.getTranslation('suspiciousKeywordDomain', 'Suspicious keyword in domain')}: ${keyword}`;
+            } else if (threat.includes('Suspicious keyword in email:')) {
+                const keyword = threat.split(': ')[1];
+                return `${this.getTranslation('suspiciousKeywordEmail', 'Suspicious keyword in email')}: ${keyword}`;
+            } else if (threat.includes('Possible') && threat.includes('impersonation in domain')) {
+                return this.getTranslation('brandImpersonation', threat);
+            } else if (threat.includes('brand impersonation on free email')) {
+                return this.getTranslation('brandOnFreeEmail', threat);
+            } else if (threat.includes('brand on suspicious domain')) {
+                return this.getTranslation('brandOnSuspiciousDomain', threat);
+            } else if (threat.includes('Risky domain extension:')) {
+                const extension = threat.split(': ')[1];
+                return `${this.getTranslation('riskyDomainExtension', 'Risky domain extension')}: ${extension}`;
+            } else if (threat.includes('Domain uses IP address')) {
+                return this.getTranslation('ipAddressDetected', threat);
+            } else if (threat.includes('Unusually long domain name')) {
+                return this.getTranslation('unusuallyLongDomain', threat);
+            } else if (threat.includes('Long domain name')) {
+                return this.getTranslation('longDomainName', threat);
+            } else if (threat.includes('URL shortening service detected')) {
+                return this.getTranslation('urlShortenerDetected', threat);
+            } else if (threat.includes('Multiple @ symbols detected')) {
+                return this.getTranslation('multipleAtSymbols', threat);
+            } else if (threat.includes('Suspicious dashes in domain name')) {
+                return this.getTranslation('suspiciousDashes', threat);
+            } else if (threat.includes('Multiple subdomains detected')) {
+                return this.getTranslation('multipleSubdomains', threat);
+            } else if (threat.includes('Many subdomains (high risk)')) {
+                return this.getTranslation('manySubdomains', threat);
+            } else if (threat.includes('Security keywords in domain name (suspicious)')) {
+                return this.getTranslation('securityKeywordsInDomain', threat);
+            } else if (threat.includes('typosquatting')) {
+                return this.getTranslation('possibleTyposquatting', threat);
+            } else if (threat.includes('Mixed character scripts detected')) {
+                return this.getTranslation('mixedCharacterScripts', threat);
+            }
+            
+            // Return original threat if no translation found
+            return threat;
+        });
+
+        // Translate reasoning
+        let translatedReasoning = analysis.reasoning;
+        if (analysis.reasoning === 'Domain is whitelisted (verified safe)') {
+            translatedReasoning = this.getTranslation('domainWhitelisted', analysis.reasoning);
+        } else if (analysis.reasoning === 'No suspicious patterns detected') {
+            translatedReasoning = this.getTranslation('noSuspiciousPatterns', analysis.reasoning);
+        } else if (translatedThreats.length > 0) {
+            translatedReasoning = translatedThreats.join(', ');
+        }
+
+        return {
+            ...analysis,
+            threats: translatedThreats,
+            reasoning: translatedReasoning
+        };
+    }
+
     testEmailDetection() {
         // Look for any emails already on the page
         const allElements = document.querySelectorAll('*');
@@ -545,6 +773,13 @@ class PhishGuardContent {
 
     async handleEmailHover(email, element) {
         try {
+            // Check if email scanning is enabled
+            const settings = await chrome.storage.sync.get(['emailScanningEnabled']);
+            if (!settings.emailScanningEnabled) {
+                console.log('PhishGuard: Email scanning disabled, skipping analysis');
+                return;
+            }
+
             // Prevent multiple tooltips for same email
             if (this.currentHoveredEmail === email) {
                 return;
@@ -566,9 +801,12 @@ class PhishGuardContent {
             // Use simple scanner only - clean and fast
             const analysis = await this.emailScanner.scanEmail(email);
             
+            // Translate the analysis results
+            const translatedAnalysis = this.translateAnalysisResults(analysis);
+            
             // Only show tooltip if this is still the hovered email
             if (this.currentHoveredEmail === email) {
-                this.showEmailTooltip(element, email, analysis);
+                this.showEmailTooltip(element, email, translatedAnalysis);
             }
             
             
@@ -585,8 +823,8 @@ class PhishGuardContent {
 
     showFastSafeTooltip(element, email) {
         this.showTooltip(element, {
-            title: '✅ Email Scanned',
-            content: `<div style="font-size: 12px; color: #666; margin: 8px 0; font-family: monospace; background: #f5f5f5; padding: 4px 8px; border-radius: 4px;">${email}</div>No immediate threats detected`,
+            title: `✅ ${this.getTranslation('emailScanned', 'Email Scanned')}`,
+            content: `<div style="font-size: 12px; color: #666; margin: 8px 0; font-family: monospace; background: #f5f5f5; padding: 4px 8px; border-radius: 4px;">${email}</div>${this.getTranslation('noThreatsDetected', 'No immediate threats detected')}`,
             type: 'safe'
         });
     }
@@ -647,9 +885,9 @@ class PhishGuardContent {
         tooltip.id = 'phishguard-email-tooltip';
         tooltip.className = 'phishguard-tooltip evaluating';
         tooltip.innerHTML = `
-            <strong>🔍 Analyzing Email</strong>
+            <strong>🔍 ${this.getTranslation('analyzingEmail', 'Analyzing Email')}</strong>
             <p>Evaluating: ${email}</p>
-            <small>Please wait...</small>
+            <small>${this.getTranslation('pleaseWait', 'Please wait...')}</small>
         `;
         
         this.positionTooltip(tooltip, element);
@@ -658,8 +896,8 @@ class PhishGuardContent {
 
     showEvaluatingState(element, email) {
         this.showTooltip(element, {
-            title: '🔍 Analyzing Email',
-            content: 'Checking email validity...',
+            title: `🔍 ${this.getTranslation('analyzingEmail', 'Analyzing Email')}`,
+            content: this.getTranslation('checkingValidity', 'Checking email validity...'),
             type: 'evaluating'
         });
     }
@@ -722,11 +960,11 @@ class PhishGuardContent {
                     analysis.riskLevel === 'medium' ? '⚠️' : 
                     analysis.riskLevel === 'high' ? '🚨' : '✅';
         
-        const title = hasTyposquatting ? 'High Risk Email' :
-                     analysis.riskLevel === 'safe' ? 'Email Verified' :
-                     analysis.riskLevel === 'low' ? 'Low Risk Email' :
-                     analysis.riskLevel === 'medium' ? 'Suspicious Email' : 
-                     analysis.riskLevel === 'high' ? 'High Risk Email' : 'Email Verified';
+        const title = hasTyposquatting ? this.getTranslation('highRiskEmail', 'High Risk Email') :
+                     analysis.riskLevel === 'safe' ? this.getTranslation('emailVerified', 'Email Verified') :
+                     analysis.riskLevel === 'low' ? this.getTranslation('lowRiskEmail', 'Low Risk Email') :
+                     analysis.riskLevel === 'medium' ? this.getTranslation('suspiciousEmail', 'Suspicious Email') : 
+                     analysis.riskLevel === 'high' ? this.getTranslation('highRiskEmail', 'High Risk Email') : this.getTranslation('emailVerified', 'Email Verified');
         
         tooltip.innerHTML = `
             <strong>${icon} ${title}</strong>

@@ -9,13 +9,11 @@ class PhishGuardPopup {
 
     async loadSettings() {
         const settings = await chrome.storage.sync.get({
-            protectionEnabled: true,
             emailScanningEnabled: true,
             notificationsEnabled: true,
             language: 'en'
         });
 
-        this.updateToggle('protection-toggle', settings.protectionEnabled);
         this.updateToggle('email-toggle', settings.emailScanningEnabled);
         this.updateToggle('notification-toggle', settings.notificationsEnabled);
         document.getElementById('language-dropdown').value = settings.language;
@@ -26,10 +24,6 @@ class PhishGuardPopup {
 
     setupEventListeners() {
         // Toggle switches
-        document.getElementById('protection-toggle').addEventListener('click', () => {
-            this.toggleSetting('protection-toggle', 'protectionEnabled');
-        });
-
         document.getElementById('email-toggle').addEventListener('click', () => {
             this.toggleSetting('email-toggle', 'emailScanningEnabled');
         });
@@ -205,6 +199,19 @@ class PhishGuardPopup {
             action: 'languageChanged',
             language: language
         });
+
+        // Also notify content scripts of language change
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs[0]) {
+                chrome.tabs.sendMessage(tabs[0].id, {
+                    action: 'settingChanged',
+                    setting: 'language',
+                    value: language
+                }).catch(() => {
+                    // Ignore errors if content script isn't ready
+                });
+            }
+        });
     }
 
     updateLanguage(language) {
@@ -212,11 +219,13 @@ class PhishGuardPopup {
             en: {
                 title: 'PhishGuard SG',
                 subtitle: 'Keeping Singapore Safe from Phishing',
-                protection: 'Real-time Protection',
                 email: 'Email Scanning',
                 notifications: 'Notifications',
                 language: 'Language',
                 report: 'Report a phishing site',
+                privacyPolicy: 'Privacy Policy',
+                termsOfService: 'Terms of Service',
+                privacySettings: 'Privacy Settings',
                 protectionActive: '✅ Protection Active',
                 verifiedSafe: '✅ Verified Safe',
                 warning: '⚠️ Warning ⚠️',
@@ -233,11 +242,13 @@ class PhishGuardPopup {
             zh: {
                 title: '🛡️ PhishGuard SG',
                 subtitle: '保护新加坡免受网络钓鱼攻击',
-                protection: '实时保护',
                 email: '邮件扫描',
                 notifications: '通知',
                 language: '语言',
                 report: '举报钓鱼网站',
+                privacyPolicy: '隐私政策',
+                termsOfService: '服务条款',
+                privacySettings: '隐私设置',
                 protectionActive: '✅ 保护已激活',
                 verifiedSafe: '✅ 验证安全',
                 warning: '⚠️ 警告 ⚠️',
@@ -254,11 +265,13 @@ class PhishGuardPopup {
             ms: {
                 title: '🛡️ PhishGuard SG',
                 subtitle: 'Melindungi Singapura dari Phishing',
-                protection: 'Perlindungan Masa Nyata',
                 email: 'Pengimbasan E-mel',
                 notifications: 'Pemberitahuan',
                 language: 'Bahasa',
                 report: 'Laporkan laman phishing',
+                privacyPolicy: 'Dasar Privasi',
+                termsOfService: 'Terma Perkhidmatan',
+                privacySettings: 'Tetapan Privasi',
                 protectionActive: '✅ Perlindungan Aktif',
                 verifiedSafe: '✅ Disahkan Selamat',
                 warning: '⚠️ Amaran ⚠️',
@@ -275,11 +288,13 @@ class PhishGuardPopup {
             ta: {
                 title: '🛡️ PhishGuard SG',
                 subtitle: 'சிங்கப்பூரை ஃபிஷிங்கிலிருந்து பாதுகாத்தல்',
-                protection: 'நேரடி பாதுகாப்பு',
                 email: 'மின்னஞ்சல் ஸ்கேனிங்',
                 notifications: 'அறிவிப்புகள்',
                 language: 'மொழி',
                 report: 'ஃபிஷிங் தளத்தைப் புகாரளிக்கவும்',
+                privacyPolicy: 'தனியுரிமை கொள்கை',
+                termsOfService: 'சேவை விதிகள்',
+                privacySettings: 'தனியுரிமை அமைப்புகள்',
                 protectionActive: '✅ பாதுகாப்பு செயலில்',
                 verifiedSafe: '✅ சரிபார்க்கப்பட்ட பாதுகாப்பு',
                 warning: '⚠️ எச்சரிக்கை ⚠️',
@@ -304,11 +319,15 @@ class PhishGuardPopup {
         // Update all text elements
         document.querySelector('.logo').textContent = t.title;
         document.querySelector('.header div:nth-child(2)').textContent = t.subtitle;
-        document.querySelectorAll('.switch span')[0].textContent = t.protection;
-        document.querySelectorAll('.switch span')[1].textContent = t.email;
-        document.querySelectorAll('.switch span')[2].textContent = t.notifications;
+        document.querySelectorAll('.switch span')[0].textContent = t.email;
+        document.querySelectorAll('.switch span')[1].textContent = t.notifications;
         document.querySelectorAll('.language-selector span')[0].textContent = t.language;
         document.getElementById('report-link').textContent = t.report;
+        
+        // Update privacy links
+        document.getElementById('privacy-link').textContent = t.privacyPolicy;
+        document.getElementById('terms-link').textContent = t.termsOfService;
+        document.getElementById('consent-link').textContent = t.privacySettings;
     }
 
     getCurrentTranslation(key, defaultValue = '') {

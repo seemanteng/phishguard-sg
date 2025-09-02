@@ -331,8 +331,15 @@ class PhishGuardBackground {
         return domain.length > 20 ? 30 : 0;
     }
 
-    showThreatWarning(tabId, threatLevel, domain) {
+    async showThreatWarning(tabId, threatLevel, domain) {
         console.log('PhishGuard: Creating threat notification for:', domain);
+        
+        // Check if notifications are enabled
+        const settings = await chrome.storage.sync.get(['notificationsEnabled']);
+        if (!settings.notificationsEnabled) {
+            console.log('PhishGuard: Notifications disabled, skipping notification');
+            return;
+        }
         
         // Show rich browser notification with action buttons
         const notificationId = `threat-${Date.now()}`;
@@ -372,7 +379,14 @@ class PhishGuardBackground {
         });
     }
 
-    showSafeNotification(tabId) {
+    async showSafeNotification(tabId) {
+        // Check if notifications are enabled
+        const settings = await chrome.storage.sync.get(['notificationsEnabled']);
+        if (!settings.notificationsEnabled) {
+            console.log('PhishGuard: Notifications disabled, skipping safe notification');
+            return;
+        }
+        
         // Show rich browser notification for trusted sites
         const notificationId = `safe-${Date.now()}`;
         chrome.notifications.create(notificationId, {
@@ -401,7 +415,14 @@ class PhishGuardBackground {
         });
     }
 
-    showGeneralSafeNotification(tabId, domain) {
+    async showGeneralSafeNotification(tabId, domain) {
+        // Check if notifications are enabled
+        const settings = await chrome.storage.sync.get(['notificationsEnabled']);
+        if (!settings.notificationsEnabled) {
+            console.log('PhishGuard: Notifications disabled, skipping general safe notification');
+            return;
+        }
+        
         // Show notification for general websites (not specifically whitelisted)
         console.log('PhishGuard: Creating general safe notification for:', domain);
         
@@ -566,8 +587,15 @@ class PhishGuardBackground {
                 });
     }
 
-    testNotification() {
+    async testNotification() {
         console.log('PhishGuard: Testing notification...');
+        
+        // Check if notifications are enabled
+        const settings = await chrome.storage.sync.get(['notificationsEnabled']);
+        if (!settings.notificationsEnabled) {
+            console.log('PhishGuard: Notifications disabled, cannot show test notification');
+            return;
+        }
         
         chrome.notifications.create('test-notification', {
             type: 'basic',
