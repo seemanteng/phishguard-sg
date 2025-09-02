@@ -35,7 +35,7 @@ PhishGuard SG runs automatically in the background and:
 
 ## Feature Engineering Approach
 
-PhishGuard SG uses sophisticated **feature engineering** to enhance phishing detection accuracy beyond simple pattern matching:
+PhishGuard SG uses feature engineering to enhance phishing detection accuracy beyond simple pattern matching to come up with a "security score" (the lower the better):
 
 ### Advanced URL Analysis Features
 - **IP Address Detection**: Identifies emails using raw IP addresses instead of domain names (50 risk points)
@@ -80,40 +80,32 @@ This approach enables detection of **advanced phishing techniques** that would b
 
 ```
 phishguard-sg/
-├── manifest.json              # Extension configuration with privacy resources
-├── background.js              # Service worker with consent checking
-├── content.js                 # Main content script injected into pages
+├── manifest.json              
+├── background.js              
+├── content.js                 
 ├── utils/
-│   ├── email-scanner.js       # Core email detection with whitelist integration
-│   └── threat-detector.js     # Threat analysis algorithms
+│   ├── email-scanner.js       
+│   └── threat-detector.js     
 ├── popup/
-│   ├── popup.html            # Extension popup with privacy links
-│   └── popup.js              # Popup functionality with privacy controls
+│   ├── popup.html           
+│   └── popup.js              
 ├── data/
-│   ├── threat-patterns.json  # Threat detection patterns
-│   └── whitelist.json        # Safe domain whitelist (Singapore institutions)
-├── privacy/                  # 🔒 Privacy & Security Documentation
-│   ├── consent.html          # First-run consent dialog
-│   ├── consent.css           # Professional consent UI styling
-│   └── consent.js            # Consent management logic
-├── PRIVACY_POLICY.md         # 📋 Comprehensive privacy policy
-├── TERMS_OF_SERVICE.md       # 📋 Legal terms and conditions
+│   ├── threat-patterns.json 
+│   └── whitelist.json        
+├── privacy/                 
+│   ├── consent.html          
+│   ├── consent.css           
+│   └── consent.js            
+├── PRIVACY_POLICY.md         
+├── TERMS_OF_SERVICE.md      
 ├── assets/
-│   ├── styles/warning.css    # Styling for warnings
-│   └── icons/                # Extension icons
-├── _locales/                 # Internationalization files
-├── singapore_domains.json   # Singapore domain database
-├── email-test-page.html     # Testing interface
-└── test-emails.html         # Additional test cases
+│   ├── styles/warning.css    
+│   └── icons/                
+├── _locales/                 
+├── singapore_domains.json  
+├── email-test-page.html     
+└── test-emails.html        
 ```
-
-## Testing
-
-The extension includes comprehensive testing tools:
-
-- **email-test-page.html**: Interactive test page with various email scenarios
-- **test-emails.html**: Additional test cases
-- Open these files in your browser with the extension installed to verify functionality
 
 ## Development
 
@@ -136,7 +128,7 @@ Add new languages by creating files in the `_locales/` directory following the e
 
 ## Privacy & Security
 
-### 🔒 Privacy-First Design
+### Privacy-First Design
 
 PhishGuard SG is built with **privacy by design** principles:
 
@@ -146,7 +138,7 @@ PhishGuard SG is built with **privacy by design** principles:
 - **Open Source Transparency**: Full code available for security audits
 - **Minimal Permissions**: Only requests necessary Chrome permissions
 
-### 📋 Comprehensive Privacy Documentation
+### Comprehensive Privacy Documentation
 
 #### Privacy Policy & Legal Compliance
 - **[Privacy Policy](PRIVACY_POLICY.md)**: GDPR and Singapore PDPA compliant policy
@@ -162,14 +154,14 @@ PhishGuard SG is built with **privacy by design** principles:
 #### Technical Security Measures
 ```
 privacy/
-├── consent.html          # First-run consent interface
-├── consent.css           # Professional UI styling  
-├── consent.js            # Consent logic and storage
-├── PRIVACY_POLICY.md     # Comprehensive privacy policy
-└── TERMS_OF_SERVICE.md   # Legal terms and conditions
+├── consent.html          
+├── consent.css            
+├── consent.js            
+├── PRIVACY_POLICY.md     
+└── TERMS_OF_SERVICE.md   
 ```
 
-### 🛡️ Security Implementation
+### Security Implementation
 
 #### Background Script Security
 - **Consent Checking**: All threat detection gated by user consent
@@ -188,7 +180,7 @@ privacy/
 - **Web Accessible Resources**: Privacy documents accessible via secure Chrome APIs
 - **Content Security Policy**: Implicit CSP protection via Manifest V3
 
-### 🎯 Privacy Features
+### Privacy Features
 
 | Feature | Implementation | User Benefit |
 |---------|---------------|--------------|
@@ -198,7 +190,7 @@ privacy/
 | **Open Source** | Public code repository | Transparent security |
 | **Regular Updates** | Security patches via Chrome Web Store | Maintained protection |
 
-### 📊 Compliance Status
+### Compliance Status
 
 - ✅ **Singapore PDPA**: Compliant (no personal data processed)
 - ✅ **EU GDPR**: Compliant with comprehensive privacy policy  
@@ -214,9 +206,6 @@ privacy/
 4. Test thoroughly using the included test files
 5. Submit a pull request
 
-## License
-
-This project is for educational and security research purposes.
 
 ## Disclaimer
 
