@@ -8,14 +8,9 @@ class PhishGuardContent {
             console.log('PhishGuard: Current URL:', window.location.href);
             
             this.emailScanner = new EmailScanner();
-            this.emailCache = new Map(); // In-memory cache for current session
             this.evaluatingEmails = new Set(); // Track emails being analyzed
-            this.persistentCache = {}; // Will be loaded from storage
             this.currentHoveredEmail = null; // Track current hovered email
             this.hoverDebounceTimeout = null; // Debounce rapid hover events
-            
-            // Load persistent cache from storage
-            this.loadPersistentCache();
             
             this.setupEmailDetection();
             this.setupPageMonitoring();
@@ -178,24 +173,15 @@ class PhishGuardContent {
                 try {
                     const allElements = document.querySelectorAll('*');
                     let analyzedCount = 0;
-                    let cachedCount = 0;
                     
                     for (let element of allElements) {
                         const email = this.extractEmail(element);
-                        if (email && analyzedCount + cachedCount < 10) { // Limit to 10 total
-                            if (this.emailCache.has(email)) {
-                                cachedCount++;
-                                continue; // Already cached
-                            }
-                            
-                            // Only analyze if not in persistent cache
+                        if (email && analyzedCount < 10) { // Limit to 10 total
                             const analysis = this.emailScanner.scanEmail(email);
-                            this.emailCache.set(email, analysis);
-                            await this.saveToPersistentCache(email, analysis);
                             analyzedCount++;
                         }
                     }
-                    console.log(`PhishGuard: Pre-analysis complete - ${analyzedCount} new, ${cachedCount} cached, total ${analyzedCount + cachedCount} emails ready`);
+                    console.log(`PhishGuard: Pre-analysis complete - ${analyzedCount} emails analyzed`);
                 } catch (error) {
                     console.error('PhishGuard: Pre-analysis failed:', error);
                 }
@@ -299,6 +285,13 @@ class PhishGuardContent {
                 border-left-color: #f44336; 
             }
             
+            .phishguard-tooltip.typosquatting {
+                border-left-color: #dc3545 !important;
+                background: #f5c6cb;
+                color: #721c24;
+                animation: pulse-red 2s infinite;
+            }
+            
             .phishguard-tooltip.evaluating { 
                 border-left-color: #2196f3;
                 animation: pulse 1.5s infinite;
@@ -308,6 +301,12 @@ class PhishGuardContent {
                 0% { opacity: 1; }
                 50% { opacity: 0.7; }
                 100% { opacity: 1; }
+            }
+            
+            @keyframes pulse-red {
+                0% { background: #f5c6cb; }
+                50% { background: #f8d7da; }
+                100% { background: #f5c6cb; }
             }
             
             .phishguard-tooltip strong {
@@ -356,20 +355,6 @@ class PhishGuardContent {
             this.removeExistingTooltip();
             this.currentHoveredEmail = email;
 
-            // Check cache first for instant results
-            if (this.emailCache.has(email)) {
-                const cached = this.emailCache.get(email);
-                if (this.isCacheValid(cached)) {
-                    console.log(`PhishGuard: Using cached analysis for ${email}`);
-                    const cachedAnalysis = { ...cached, fromCache: true };
-                    this.showEmailTooltip(element, email, cachedAnalysis);
-                    return;
-                } else {
-                    // Remove expired cache
-                    this.emailCache.delete(email);
-                    delete this.persistentCache[email];
-                }
-            }
 
             // Skip if already analyzing this email
             if (this.evaluatingEmails.has(email)) {
@@ -387,9 +372,6 @@ class PhishGuardContent {
                 this.showEmailTooltip(element, email, analysis);
             }
             
-            // Cache result
-            this.emailCache.set(email, analysis);
-            await this.saveToPersistentCache(email, analysis);
             
             this.evaluatingEmails.delete(email);
             
@@ -507,7 +489,17 @@ class PhishGuardContent {
     createEmailTooltip(analysis) {
         // Debug logging  
         console.log(`PhishGuard Tooltip: ${analysis.email} → riskLevel: "${analysis.riskLevel}", score: ${analysis.threatScore || 'undefined'}`);
+        console.log(`Threats: ${JSON.stringify(analysis.threats || [])}`);
+        
+        // Check for typosquatting threats
+        const hasTyposquatting = analysis.threats && analysis.threats.some(threat => 
+            threat.includes('typosquatting') || threat.includes('Typosquatting') || 
+            threat.includes('character substitution') || threat.includes('Character Substitution')
+        );
+        
+        console.log(`Typosquatting detected: ${hasTyposquatting}`);
         console.log(`Color mapping: ${analysis.riskLevel} → typeClass will be:`, 
+            hasTyposquatting ? 'typosquatting' :
             analysis.riskLevel === 'safe' ? 'safe' :
             analysis.riskLevel === 'low' ? 'warning' :
             analysis.riskLevel === 'medium' ? 'warning' : 
@@ -516,29 +508,29 @@ class PhishGuardContent {
         const tooltip = document.createElement('div');
         tooltip.id = 'phishguard-email-tooltip';
         
-        const typeClass = analysis.riskLevel === 'safe' ? 'safe' :
+        // Prioritize typosquatting for red alert
+        const typeClass = hasTyposquatting ? 'typosquatting' :
+                         analysis.riskLevel === 'safe' ? 'safe' :
                          analysis.riskLevel === 'low' ? 'warning' :
                          analysis.riskLevel === 'medium' ? 'warning' : 
                          analysis.riskLevel === 'high' ? 'danger' : 'safe';
         
         tooltip.className = `phishguard-tooltip ${typeClass}`;
         
-        const icon = analysis.riskLevel === 'safe' ? '✅' :
+        const icon = hasTyposquatting ? '🚨' :
+                    analysis.riskLevel === 'safe' ? '✅' :
                     analysis.riskLevel === 'low' ? '⚠️' :
                     analysis.riskLevel === 'medium' ? '⚠️' : 
                     analysis.riskLevel === 'high' ? '🚨' : '✅';
         
-        const title = analysis.riskLevel === 'safe' ? 'Email Verified' :
+        const title = hasTyposquatting ? 'High Risk Email' :
+                     analysis.riskLevel === 'safe' ? 'Email Verified' :
                      analysis.riskLevel === 'low' ? 'Low Risk Email' :
                      analysis.riskLevel === 'medium' ? 'Suspicious Email' : 
                      analysis.riskLevel === 'high' ? 'High Risk Email' : 'Email Verified';
         
-        const cacheIndicator = analysis.fromCache ? 
-            '<span style="font-size: 10px; color: #888; margin-left: 8px;">⚡ Cached</span>' : 
-            '<span style="font-size: 10px; color: #888; margin-left: 8px;">🔍 Fresh</span>';
-            
         tooltip.innerHTML = `
-            <strong>${icon} ${title}${cacheIndicator}</strong>
+            <strong>${icon} ${title}</strong>
             <div style="font-size: 12px; color: #666; margin: 8px 0; font-family: monospace; background: #f5f5f5; padding: 4px 8px; border-radius: 4px;">${analysis.email}</div>
             <p>${analysis.reasoning}</p>
             ${analysis.recommendations ? `<div class="phishguard-recommendation">💡 ${analysis.recommendations}</div>` : ''}
@@ -746,84 +738,6 @@ class PhishGuardContent {
         }
     }
 
-    async loadPersistentCache() {
-        try {
-            // Load cached email analyses from Chrome storage
-            const result = await new Promise((resolve) => {
-                chrome.storage.local.get(['emailAnalysisCache'], (data) => {
-                    resolve(data.emailAnalysisCache || {});
-                });
-            });
-            
-            this.persistentCache = result;
-            
-            // Load into memory cache for faster access
-            Object.entries(this.persistentCache).forEach(([email, analysis]) => {
-                if (this.isCacheValid(analysis)) {
-                    this.emailCache.set(email, analysis);
-                } else {
-                    // Remove expired cache entries
-                    delete this.persistentCache[email];
-                }
-            });
-            
-            console.log(`PhishGuard: Loaded ${Object.keys(this.persistentCache).length} cached email analyses`);
-        } catch (error) {
-            console.error('PhishGuard: Failed to load persistent cache:', error);
-            this.persistentCache = {};
-        }
-    }
-
-    async saveToPersistentCache(email, analysis) {
-        try {
-            // Add timestamp for cache management
-            const cachedAnalysis = {
-                ...analysis,
-                cachedAt: Date.now(),
-                cacheVersion: '3.3' // Updated version invalidates old cache
-            };
-            
-            this.persistentCache[email] = cachedAnalysis;
-            
-            // Save to Chrome storage (debounced to avoid excessive writes)
-            if (this.saveTimeout) {
-                clearTimeout(this.saveTimeout);
-            }
-            
-            this.saveTimeout = setTimeout(() => {
-                chrome.storage.local.set({ 
-                    emailAnalysisCache: this.persistentCache 
-                }, () => {
-                    if (chrome.runtime.lastError) {
-                        console.error('PhishGuard: Failed to save cache:', chrome.runtime.lastError);
-                    } else {
-                        console.log(`PhishGuard: Saved analysis for ${email} to persistent cache`);
-                    }
-                });
-            }, 1000); // Debounce saves by 1 second
-            
-        } catch (error) {
-            console.error('PhishGuard: Failed to save to persistent cache:', error);
-        }
-    }
-
-    isCacheValid(cachedAnalysis) {
-        if (!cachedAnalysis || !cachedAnalysis.cachedAt) {
-            return false;
-        }
-        
-        // Invalidate cache if version doesn't match (forces re-analysis with new logic)
-        if (cachedAnalysis.cacheVersion !== '3.3') {
-            console.log('PhishGuard: Invalidating old cache version', cachedAnalysis.cacheVersion);
-            return false;
-        }
-        
-        // Cache is valid for 7 days (email threat patterns don't change often)
-        const CACHE_VALIDITY = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-        const age = Date.now() - cachedAnalysis.cachedAt;
-        
-        return age < CACHE_VALIDITY;
-    }
 }
 
 // Initialize when DOM is ready - non-blocking approach

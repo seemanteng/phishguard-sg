@@ -25,6 +25,19 @@
     color: #155724;
 }
 
+.phishguard-warning.typosquatting {
+    background-color: #f5c6cb;
+    border-color: #dc3545;
+    color: #721c24;
+    animation: pulse-red 2s infinite;
+}
+
+@keyframes pulse-red {
+    0% { background-color: #f5c6cb; }
+    50% { background-color: #f8d7da; }
+    100% { background-color: #f5c6cb; }
+}
+
 .phishguard-content {
     display: flex;
     align-items: center;
