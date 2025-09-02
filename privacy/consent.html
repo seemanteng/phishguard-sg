@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard SG - Privacy & Consent</title>
+    <link rel="stylesheet" href="consent.css">
+</head>
+<body>
+    <div class="consent-container">
+        <div class="header">
+            <img src="../assets/icons/icon48.png" alt="PhishGuard SG" class="logo">
+            <h1>Welcome to PhishGuard SG</h1>
+            <p class="subtitle">Protecting Singaporeans from phishing threats</p>
+        </div>
+
+        <div class="privacy-section">
+            <h2>🛡️ Your Privacy is Protected</h2>
+            <div class="privacy-highlights">
+                <div class="highlight-item">
+                    <span class="icon">✅</span>
+                    <div>
+                        <strong>Zero Data Collection</strong>
+                        <p>We don't collect, store, or transmit any personal data</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <span class="icon">🏠</span>
+                    <div>
+                        <strong>Local Processing Only</strong>
+                        <p>All threat detection happens on your device</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <span class="icon">🔒</span>
+                    <div>
+                        <strong>No External Servers</strong>
+                        <p>Your browsing activity never leaves your browser</p>
+                    </div>
+                </div>
+                <div class="highlight-item">
+                    <span class="icon">📖</span>
+                    <div>
+                        <strong>Open Source</strong>
+                        <p>Our code is transparent and publicly auditable</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="permissions-section">
+            <h3>Permissions Explained</h3>
+            <div class="permission-list">
+                <div class="permission-item">
+                    <strong>Active Tab</strong>
+                    <span>To scan websites for phishing threats</span>
+                </div>
+                <div class="permission-item">
+                    <strong>Storage</strong>
+                    <span>To save your language preferences locally</span>
+                </div>
+                <div class="permission-item">
+                    <strong>Notifications</strong>
+                    <span>To alert you about potential threats</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="consent-options">
+            <label class="checkbox-container">
+                <input type="checkbox" id="notifications-consent" checked>
+                <span class="checkmark"></span>
+                Enable threat notifications (recommended)
+            </label>
+            
+            <label class="checkbox-container">
+                <input type="checkbox" id="privacy-consent" required>
+                <span class="checkmark"></span>
+                I have read and agree to the <a href="../PRIVACY_POLICY.md" target="_blank">Privacy Policy</a>
+            </label>
+        </div>
+
+        <div class="language-selection">
+            <label for="language-select">Choose your language:</label>
+            <select id="language-select">
+                <option value="en">English</option>
+                <option value="zh">中文 (Chinese)</option>
+                <option value="ms">Bahasa Melayu (Malay)</option>
+                <option value="ta">தமிழ் (Tamil)</option>
+            </select>
+        </div>
+
+        <div class="actions">
+            <button id="decline-btn" class="btn secondary">Decline & Disable</button>
+            <button id="accept-btn" class="btn primary" disabled>Accept & Continue</button>
+        </div>
+
+        <div class="footer">
+            <p>Questions? <a href="https://github.com/your-username/phishguard-sg/issues" target="_blank">Contact us on GitHub</a></p>
+            <p class="version">Version 1.0.2</p>
+        </div>
+    </div>
+
+    <script src="consent.js"></script>
+</body>
+</html>

@@ -8,7 +8,27 @@ class PhishGuardBackground {
         this.setupListeners();
         this.loadThreatData();
         this.loadLanguageSettings();
+        this.checkFirstRun();
         console.log('PhishGuard: Background script initialized');
+    }
+
+    async checkFirstRun() {
+        try {
+            const result = await chrome.storage.sync.get(['consentGiven', 'firstRun']);
+            
+            if (!result.consentGiven && result.firstRun !== false) {
+                // First run - show consent dialog
+                console.log('PhishGuard: First run detected, showing consent dialog');
+                chrome.tabs.create({
+                    url: chrome.runtime.getURL('privacy/consent.html')
+                });
+                
+                // Mark that we've shown the first run dialog
+                await chrome.storage.sync.set({ firstRun: false });
+            }
+        } catch (error) {
+            console.error('PhishGuard: Error checking first run:', error);
+        }
     }
 
     async loadLanguageSettings() {
@@ -144,6 +164,8 @@ class PhishGuardBackground {
             } else if (request.action === 'languageChanged') {
                 this.currentLanguage = request.language;
                 console.log('PhishGuard: Language changed to:', this.currentLanguage);
+            } else if (request.action === 'disableExtension') {
+                this.disableExtension();
             }
         });
 
@@ -185,12 +207,19 @@ class PhishGuardBackground {
         }
     }
 
-    checkURL(url, tabId) {
+    async checkURL(url, tabId) {
         console.log('PhishGuard: Checking URL:', url);
         
         // Skip chrome:// URLs and extensions
         if (url.startsWith('chrome://') || url.startsWith('chrome-extension://') || url.startsWith('moz-extension://')) {
             console.log('PhishGuard: Skipping browser internal URL');
+            return;
+        }
+
+        // Check if user has given consent and extension is not disabled
+        const consent = await chrome.storage.sync.get(['consentGiven', 'extensionDisabled']);
+        if (!consent.consentGiven || consent.extensionDisabled) {
+            console.log('PhishGuard: Extension disabled or no consent given');
             return;
         }
         
@@ -553,6 +582,21 @@ class PhishGuardBackground {
                 console.log('PhishGuard: Test notification created:', notificationId);
             }
         });
+    }
+
+    async disableExtension() {
+        console.log('PhishGuard: Disabling extension functionality');
+        try {
+            await chrome.storage.sync.set({
+                extensionDisabled: true,
+                protectionEnabled: false,
+                emailScanningEnabled: false,
+                notificationsEnabled: false
+            });
+            console.log('PhishGuard: Extension disabled');
+        } catch (error) {
+            console.error('PhishGuard: Error disabling extension:', error);
+        }
     }
 }
 

@@ -44,7 +44,12 @@
       "resources": [
         "assets/styles/warning.css",
         "data/threat-patterns.json",
-        "data/whitelist.json"
+        "data/whitelist.json",
+        "PRIVACY_POLICY.md",
+        "TERMS_OF_SERVICE.md",
+        "privacy/consent.html",
+        "privacy/consent.css",
+        "privacy/consent.js"
       ],
       "matches": ["<all_urls>"]
     }

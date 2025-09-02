@@ -50,6 +50,25 @@ class PhishGuardPopup {
             });
         });
 
+        // Privacy links
+        document.getElementById('privacy-link').addEventListener('click', () => {
+            chrome.tabs.create({ 
+                url: chrome.runtime.getURL('PRIVACY_POLICY.md')
+            });
+        });
+
+        document.getElementById('terms-link').addEventListener('click', () => {
+            chrome.tabs.create({ 
+                url: chrome.runtime.getURL('TERMS_OF_SERVICE.md')
+            });
+        });
+
+        document.getElementById('consent-link').addEventListener('click', () => {
+            chrome.tabs.create({ 
+                url: chrome.runtime.getURL('privacy/consent.html')
+            });
+        });
+
     }
 
     async toggleSetting(toggleId, settingKey) {
