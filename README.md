@@ -1,4 +1,4 @@
-# <img width="128" height="128" alt="PHISHGUARD SG" src="https://github.com/user-attachments/assets/f0bcda65-8a42-4553-892b-c7d035ca18a4" /> PhishGuard SG 
+# <img width="128" height="128" alt="PHISHGUARD SG" src="https://github.com/user-attachments/assets/f0bcda65-8a42-4553-892b-c7d035ca18a4" /> PhishGuard SG
 
 
 A Chrome extension designed to protect Singaporeans from phishing websites and email impersonation attacks, with specialized detection for Singapore financial institutions and government services.
@@ -81,29 +81,28 @@ This approach enables detection of **advanced phishing techniques** that would b
 phishguard-sg/
 ├── manifest.json              
 ├── background.js              
-├── content.js                 
+├── content.js               
 ├── utils/
-│   ├── email-scanner.js       
+│   ├── email-scanner.js     
 │   └── threat-detector.js     
 ├── popup/
-│   ├── popup.html           
-│   └── popup.js              
+│   ├── popup.html            
+│   └── popup.js             
 ├── data/
-│   ├── threat-patterns.json 
-│   └── whitelist.json        
-├── privacy/                 
-│   ├── consent.html          
+│   ├── threat-patterns.json   
+│   └── whitelist.json         
+├── privacy/                   
+│   ├── consent.html         
 │   ├── consent.css           
-│   └── consent.js            
-├── PRIVACY_POLICY.md         
-├── TERMS_OF_SERVICE.md      
-├── assets/
-│   ├── styles/warning.css    
+│   └── consent.js          
+├── assets/                    
+│   ├── styles/               
 │   └── icons/                
 ├── _locales/                 
-├── singapore_domains.json  
-├── email-test-page.html     
-└── test-emails.html        
+├── singapore_domains.json     
+├── email-test-page.html       
+├── PRIVACY_POLICY.md          
+└── TERMS_OF_SERVICE.md       
 ```
 
 ## Development
@@ -115,11 +114,18 @@ phishguard-sg/
 - **utils/threat-detector.js**: Threat classification algorithms
 - **background.js**: Handles extension lifecycle and storage
 
+### Testing
+
+Use the included test page to verify detection functionality:
+- Open `email-test-page.html` in your browser with the extension loaded
+- Hover over different email addresses to see threat detection in action
+- Verify that legitimate emails show as safe and suspicious ones trigger warnings
+
 ### Adding New Threat Patterns
 
 1. Edit `data/threat-patterns.json` to add new detection rules
 2. Update `utils/threat-detector.js` for new analysis logic
-3. Test using the provided HTML test files
+3. Test using `email-test-page.html`
 
 ### Localization
 
@@ -213,9 +219,13 @@ privacy/
 - ✅ **Security Audit**: Open source code available for review
 - ✅ **User Rights**: Complete control and opt-out mechanisms
 
-## Data Sets used and Citations
-- akashkr. (2019). Phishing URL EDA and modelling [Kaggle Notebook]. Kaggle. Retrieved September 2, 2025, from https://www.kaggle.com/code/akashkr/phishing-url-eda-and-modelling/notebook 
-- Proxycurl. (2023). LinkedIn Dataset – Singapore Company Profiles [Data set]. Kaggle. Retrieved September 2, 2025, from https://www.kaggle.com/datasets/proxycurl/singapore-companies
+## Data Sources
+
+This extension leverages several data sources for threat detection:
+
+- **Phishing Patterns**: Based on research from phishing URL analysis and modeling techniques
+- **Singapore Business Directory**: Curated list of legitimate Singapore company domains for whitelist validation
+- **Threat Intelligence**: Community-sourced patterns for identifying suspicious email characteristics
 
 ## Disclaimer
 

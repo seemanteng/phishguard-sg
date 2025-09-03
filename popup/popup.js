@@ -203,12 +203,14 @@ class PhishGuardPopup {
         // Also notify content scripts of language change
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
             if (tabs[0]) {
+                console.log('PhishGuard Popup: Sending language change to tab:', tabs[0].url);
                 chrome.tabs.sendMessage(tabs[0].id, {
                     action: 'settingChanged',
                     setting: 'language',
                     value: language
-                }).catch(() => {
-                    // Ignore errors if content script isn't ready
+                }).catch((error) => {
+                    console.log('PhishGuard Popup: Failed to send message to content script:', error);
+                    console.log('PhishGuard Popup: Tab URL:', tabs[0].url);
                 });
             }
         });

@@ -1,4 +1,3 @@
-// PhishGuard SG Content Script v2.2 - FIXED TOOLTIPS & COLORS  
 console.log('PhishGuard: Content script v2.2 loading with SINGLE TOOLTIP behavior...');
 
 class PhishGuardContent {
@@ -176,16 +175,20 @@ class PhishGuardContent {
         // Listen for language changes from background script
         chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (request.action === 'settingChanged' && request.setting === 'language') {
+                console.log('PhishGuard: Received language change request:', request.value);
                 this.currentLanguage = request.value;
                 this.loadTranslations();
                 console.log('PhishGuard: Language changed to:', this.currentLanguage);
+                console.log('PhishGuard: Translation test:', this.getTranslation('emailVerified', 'fallback'));
             }
         });
     }
 
     getTranslation(key, defaultValue = '') {
         const currentTranslations = this.translations[this.currentLanguage] || this.translations.en;
-        return currentTranslations[key] || defaultValue;
+        const result = currentTranslations[key] || defaultValue;
+        console.log(`PhishGuard Translation: ${key} (${this.currentLanguage}) → ${result}`);
+        return result;
     }
 
     translateAnalysisResults(analysis) {
@@ -808,7 +811,9 @@ class PhishGuardContent {
             const analysis = await this.emailScanner.scanEmail(email);
             
             // Translate the analysis results
+            console.log('PhishGuard: Translating analysis with current language:', this.currentLanguage);
             const translatedAnalysis = this.translateAnalysisResults(analysis);
+            console.log('PhishGuard: Translated analysis:', translatedAnalysis);
             
             // Only show tooltip if this is still the hovered email
             if (this.currentHoveredEmail === email) {
@@ -933,6 +938,7 @@ class PhishGuardContent {
         // Debug logging  
         console.log(`PhishGuard Tooltip: ${analysis.email} → riskLevel: "${analysis.riskLevel}", score: ${analysis.threatScore || 'undefined'}`);
         console.log(`Threats: ${JSON.stringify(analysis.threats || [])}`);
+        console.log('PhishGuard Tooltip: Current language during creation:', this.currentLanguage);
         
         // Check for typosquatting threats
         const hasTyposquatting = analysis.threats && analysis.threats.some(threat => 
@@ -971,6 +977,9 @@ class PhishGuardContent {
                      analysis.riskLevel === 'low' ? this.getTranslation('lowRiskEmail', 'Low Risk Email') :
                      analysis.riskLevel === 'medium' ? this.getTranslation('suspiciousEmail', 'Suspicious Email') : 
                      analysis.riskLevel === 'high' ? this.getTranslation('highRiskEmail', 'High Risk Email') : this.getTranslation('emailVerified', 'Email Verified');
+        
+        console.log('PhishGuard Tooltip: Generated title:', title);
+        console.log('PhishGuard Tooltip: Analysis reasoning:', analysis.reasoning);
         
         tooltip.innerHTML = `
             <strong>${icon} ${title}</strong>
@@ -1191,6 +1200,7 @@ class PhishGuardContent {
 // Initialize when DOM is ready - non-blocking approach
 function initializePhishGuard() {
     try {
+        console.log('PhishGuard: Initializing content script on page:', window.location.href);
         new PhishGuardContent();
     } catch (error) {
         console.error('PhishGuard: Failed to initialize, extension will be disabled:', error);
