@@ -94,16 +94,6 @@
         <p>Hover over emails to see detection results</p>
     </div>
 
-    <div class="instructions">
-        <h3>📋 Test Instructions</h3>
-        <ul>
-            <li><strong>Hover</strong> over any email address to see PhishGuard analysis</li>
-            <li><strong>Safe emails</strong> show green checkmark ✅</li>
-            <li><strong>Suspicious emails</strong> show warning ⚠️</li>
-            <li><strong>Dangerous emails</strong> show red alert 🚨</li>
-            <li>Move quickly between emails to test performance</li>
-        </ul>
-    </div>
 
     <div class="test-section safe">
         <h2>✅ Safe Emails (Should show green)</h2>
@@ -131,69 +121,18 @@
     </div>
 
     <div class="test-section danger">
-        <h2>🚨 Singapore Bank Impersonation (Should show red alert)</h2>
+        <h2>🚨 Company/Government Impersonation (Should show red alert)</h2>
         <div class="context-text">These emails impersonate Singapore financial institutions</div>
         <div class="email-grid">
             <div class="email">verify-dbs@gmail.com</div>
             <div class="email">ocbc-secure@hotmail.com</div>
             <div class="email">uob-alert@yahoo.com</div>
             <div class="email">posb-update@outlook.com</div>
-            <div class="email">dbs-urgent@gmail.tk</div>
-            <div class="email">ocbc-verify@hotmail.ml</div>
-        </div>
-    </div>
-
-    <div class="test-section danger">
-        <h2>🚨 Risky Domains (Should show red/orange alert)</h2>
-        <div class="context-text">These domains use suspicious TLDs often used by scammers</div>
-        <div class="email-grid">
-            <div class="email">business-services@outlook.tk</div>
-            <div class="email">bank-update@hotmail.ml</div>
-            <div class="email">security@gmail.ga</div>
-            <div class="email">support@gmail.cf</div>
-            <div class="email">admin@yahoo.click</div>
-            <div class="email">verify@hotmail.pw</div>
-        </div>
-    </div>
-
-    <div class="test-section danger">
-        <h2>🚨 Advanced Phishing Patterns (Should show red alert)</h2>
-        <div class="context-text">Testing new URL-based detection features</div>
-        <div class="email-grid">
-            <div class="email">support@192.168.1.100</div>
-            <div class="email">login@dbs-secure-verification-portal-official.com</div>
-            <div class="email">verify@ocbc-official.login-secure.update.tk</div>
-            <div class="email">admin@https-secure-banking.com</div>
-            <div class="email">support@db5.com</div>
-            <div class="email">alert@0cbc.net</div>
-        </div>
-    </div>
-
-    <div class="test-section warning">
-        <h2>⚠️ Suspicious URL Patterns (Should show orange/red warning)</h2>
-        <div class="context-text">Testing URL-based patterns</div>
-        <div class="email-grid">
-            <div class="email">help@paypal-secure.com</div>
-            <div class="email">notify@banking-update.org</div>
-            <div class="email">service@verify-account.net</div>
-            <div class="email">team@support-center.co.uk.services.tk</div>
-            <div class="email">info@ssl-security.business</div>
-            <div class="email">admin@company.domain.com</div>
-        </div>
-    </div>
-
-    <div class="test-section warning">
-        <h2>⚠️ Government Impersonation (Should show red)</h2>
-        <div class="context-text">These emails try to impersonate Singapore government services</div>
-        <div class="email-grid">
-            <div class="email">singpass-verify@gmail.com</div>
-            <div class="email">cpf-update@hotmail.com</div>
             <div class="email">iras-refund@yahoo.com</div>
-            <div class="email">hdb-notice@outlook.com</div>
-            <div class="email">singpass@gov.tk</div>
-            <div class="email">cpf-alert@gmail.ml</div>
+            <div class="email">singpass-verify@gmail.com</div>
         </div>
     </div>
+
 
     <div class="test-section">
         <h2>🎯 Mixed Content Test</h2>
@@ -201,32 +140,6 @@
         <p>🚨 But beware of fake messages from <span class="email">urgent-verify-dbs@gmail.tk</span> - this is clearly suspicious!</p>
         <p>For legitimate banking, always use official channels like <span class="email">customer.service@dbs.com</span> (this would be safe if it was real).</p>
         <p>🚨 Never trust emails like <span class="email">security-alert-ocbc@phishing.ml</span> asking for personal information!</p>
-    </div>
-
-    <div class="test-section">
-        <h2>⚡ Performance Test</h2>
-        <div class="context-text">Hover rapidly between these to test caching and performance:</div>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0;">
-            <div class="email">test1@gmail.com</div>
-            <div class="email">test2@yahoo.com</div>
-            <div class="email">dbs-admin@gmail.tk</div>
-            <div class="email">safe@hotmail.org</div>
-            <div class="email">ocbc-services@yahoo.ml</div>
-            <div class="email">normal@business.net</div>
-            <div class="email">urgent-uob@gmail.ga</div>
-            <div class="email">legit@service.com</div>
-        </div>
-    </div>
-
-    <div class="instructions">
-        <h3>🧪 What to Look For</h3>
-        <ul>
-            <li><strong>Speed:</strong> Tooltips should appear quickly on hover</li>
-            <li><strong>No Spam:</strong> Only one tooltip at a time, no constant flickering</li>
-            <li><strong>Accuracy:</strong> Singapore banks on free emails should be flagged as dangerous</li>
-            <li><strong>Caching:</strong> Re-hovering same email should be instant (shows "⚡ Cached")</li>
-            <li><strong>Clean Exit:</strong> Tooltips disappear when you move mouse away</li>
-        </ul>
     </div>
 
 </body>
