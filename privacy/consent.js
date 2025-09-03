@@ -193,10 +193,13 @@ class ConsentManager {
 
     async acceptConsent() {
         try {
-            // Save consent and preferences
+            // Save consent and preferences with default settings enabled
             await chrome.storage.sync.set({
                 consentGiven: true,
-                consentDate: new Date().toISOString()
+                consentDate: new Date().toISOString(),
+                protectionEnabled: true,
+                emailScanningEnabled: true,
+                notificationsEnabled: true
             });
 
             // Show success message

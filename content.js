@@ -773,6 +773,12 @@ class PhishGuardContent {
 
     async handleEmailHover(email, element) {
         try {
+            // Validate extension context before API calls
+            if (!chrome.runtime?.id) {
+                console.log('PhishGuard: Extension context invalid, skipping analysis');
+                return;
+            }
+            
             // Check if email scanning is enabled
             const settings = await chrome.storage.sync.get(['emailScanningEnabled']);
             if (!settings.emailScanningEnabled) {
