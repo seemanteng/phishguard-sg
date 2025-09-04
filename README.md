@@ -1,7 +1,22 @@
 # <img width="128" height="128" alt="PHISHGUARD SG" src="https://github.com/user-attachments/assets/f0bcda65-8a42-4553-892b-c7d035ca18a4" /> PhishGuard SG
 
+## Overview
 
-A Chrome extension designed to protect Singaporeans from phishing websites and email impersonation attacks, with specialized detection for Singapore financial institutions and government services.
+**PhishGuard SG** is a Chrome extension that provides real-time protection against phishing attacks targeting Singaporeans. As cybercriminals increasingly impersonate trusted Singapore financial institutions (DBS, OCBC, UOB, POSB) and government services (SingPass, CPF, IRAS, HDB), this extension offers specialized, locally-focused defense.
+
+### The Problem
+- **Rising Phishing Attacks**: Singapore faces increasing email-based phishing targeting local banks and government services
+- **Language Barriers**: Existing solutions lack multi-language support for Singapore's diverse population
+- **Generic Detection**: Most tools miss sophisticated attacks specifically designed for Singapore users
+- **Privacy Concerns**: Many security extensions collect user data and browsing habits
+
+### Our Solution
+PhishGuard SG stands out by offering:
+- **Singapore-Specific Intelligence**: Specialized detection patterns for local institutions
+- **Advanced Feature Engineering**: Sophisticated scoring system that catches subtle attacks
+- **Complete Privacy**: Zero data collection - all processing happens locally on your device  
+- **Multilingual Support**: Available in Singapore's four official languages
+- **Non-Intrusive Design**: Clean tooltip warnings that don't disrupt browsing
 
 ## Features
 
@@ -11,13 +26,52 @@ A Chrome extension designed to protect Singaporeans from phishing websites and e
 - **Multi-language Support**: Available in English, Chinese, Malay, and Tamil
 - **Non-intrusive Warnings**: Clean tooltip interface that doesn't disrupt the browsing experience
 
-## Installation
+## Installation & Setup
 
-1. Clone this repository
-2. Open Chrome and navigate to `chrome://extensions/`
-3. Enable "Developer mode" in the top right
-4. Click "Load unpacked" and select the project folder
-5. The extension icon should appear in your browser toolbar
+### Prerequisites
+- **Google Chrome** (version 88 or higher)
+- **Operating System**: Windows 10/11, macOS 10.15+, or Linux
+- **Permissions**: Ability to install Chrome extensions in Developer Mode
+
+### Quick Installation
+
+#### Option 1: From Chrome Web Store (Recommended)
+*Coming soon - extension pending Chrome Web Store review*
+
+#### Option 2: Manual Installation (Developer Mode)
+
+1. **Download the Extension**
+   ```bash
+   git clone https://github.com/yourusername/phishguard-sg.git
+   cd phishguard-sg
+   ```
+
+2. **Load in Chrome**
+   - Open Google Chrome
+   - Navigate to `chrome://extensions/`
+   - Toggle **"Developer mode"** ON (top-right corner)
+   - Click **"Load unpacked"**
+   - Select the `phishguard-sg` folder you downloaded
+   
+3. **Verify Installation**
+   - Look for the PhishGuard SG icon in your browser toolbar
+   - You should see a privacy consent dialog on first run
+   - Accept the privacy policy to activate protection
+
+4. **Test the Extension**
+   - Open the included `email-test-page.html` file in your browser
+   - Hover over the test email addresses to verify detection is working
+   - You should see colored tooltips indicating threat levels
+
+### Configuration
+- **Language Settings**: Extension automatically detects your browser language (English, Chinese, Malay, Tamil)
+- **Privacy Controls**: Access settings via the extension icon popup menu
+- **Whitelist Management**: Add trusted domains through the settings panel
+
+### Troubleshooting
+- **Extension not loading**: Ensure Developer mode is enabled in Chrome
+- **No tooltips appearing**: Check that you've accepted the privacy consent
+- **Wrong language**: Clear browser data and reinstall to reset language detection
 
 ## How It Works
 
